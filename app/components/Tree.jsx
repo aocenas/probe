@@ -2,13 +2,23 @@ const React = require('react');
 
 const sortFunctions = {
     self: (order: number) => (a, b) =>
-        Math.round((b.self - a.self) * 10000) * order,
+        Math.round((b.perfNode.self - a.perfNode.self) * 10000) * order,
     selfPerCall: (order: number) => (a, b) =>
-        Math.round((b.self / b.calls - a.self / a.calls), 10000) * order,
+        Math.round(
+            b.perfNode.self / b.perfNode.calls -
+                a.perfNode.self / a.perfNode.calls,
+            10000
+        ) * order,
     total: (order: number) => (a, b) =>
-        Math.round((b.total - a.total) * 10000) * order,
+        Math.round((b.perfNode.total - a.perfNode.total) * 10000) * order,
     totalPerCall: (order: number) => (a, b) =>
-        Math.round((b.total / b.calls - a.total / a.calls) * 10000) * order,
+        Math.round(
+            (b.perfNode.total / b.perfNode.calls -
+                a.perfNode.total / a.perfNode.calls) *
+                10000
+        ) * order,
+    calls: (order: number) => (a, b) =>
+        b.perfNode.calls - a.perfNode.calls * order,
 };
 
 class Tree extends React.Component {
@@ -48,7 +58,7 @@ class Tree extends React.Component {
                             className="fixed"
                             onClick={this._setSort('selfPerCall')}
                         >
-                            {this._sortIcon('selfPerCall')} Self/calls
+                            {this._sortIcon('selfPerCall')} Self/Calls
                         </div>
                         <div className="fixed" onClick={this._setSort('total')}>
                             {this._sortIcon('total')} Total
@@ -57,7 +67,13 @@ class Tree extends React.Component {
                             className="fixed"
                             onClick={this._setSort('totalPerCall')}
                         >
-                            {this._sortIcon('totalPerCall')} Total/calls
+                            {this._sortIcon('totalPerCall')} Total/Calls
+                        </div>
+                        <div
+                            className="fixed small"
+                            onClick={this._setSort('calls')}
+                        >
+                            {this._sortIcon('calls')} Calls
                         </div>
                         <div>Function</div>
                     </li>}
@@ -100,6 +116,7 @@ class TreeNode extends React.Component {
 
     render() {
         const { node, onClick, index } = this.props;
+        const { perfNode } = node;
         const indent = index.length;
         let icon = null;
         let children = null;
@@ -122,23 +139,46 @@ class TreeNode extends React.Component {
             <li className="tree-node">
 
                 <div onClick={() => onClick(node, index)}>
-                    <div className="column-fixed">{format(node.self, 6)}</div>
                     <div className="column-fixed">
-                        {format(node.self / node.calls, 6)}
+                        <div className="value">{format(perfNode.self, 6)}</div>
+                        <div className="percentage">
+                            {formatRelative(perfNode.selfRelative)}
+                        </div>
                     </div>
-                    <div className="column-fixed">{format(node.total, 6)}</div>
                     <div className="column-fixed">
-                        {format(node.total / node.calls, 6)}
+                        <div className="value">
+                            {format(perfNode.selfPerCall, 6)}
+                        </div>
+                        <div className="percentage">
+                            {formatRelative(perfNode.selfPerCallRelative)}
+                        </div>
+                    </div>
+                    <div className="column-fixed">
+                        <div className="value">{format(perfNode.total, 6)}</div>
+                        <div className="percentage">
+                            {formatRelative(perfNode.totalRelative)}
+                        </div>
+                    </div>
+                    <div className="column-fixed">
+                        <div className="value">
+                            {format(perfNode.totalPerCall, 6)}
+                        </div>
+                        <div className="percentage">
+                            {formatRelative(perfNode.totalPerCallRelative)}
+                        </div>
+                    </div>
+                    <div className="column-fixed small">
+                        <div className="value">{perfNode.calls}</div>
                     </div>
                     <div
                         style={{ paddingLeft: indent * 20 + (!icon ? 12 : 0) }}
                         className={'func'}
                     >
-                        {icon}{node.func}
+                        {icon}{perfNode.func}
                     </div>
 
                     <div className="path">
-                        {node.file}#{node.line}
+                        {perfNode.file}#{perfNode.line}
                     </div>
                 </div>
 
@@ -157,6 +197,11 @@ const format = number => {
         ms = Math.round(number * 10000) / 10;
     }
     return `${ms.toLocaleString()}ms`;
+};
+
+const formatRelative = number => {
+    let percent = Math.round(number * 1000) / 10;
+    return `${percent}%`;
 };
 
 module.exports = Tree;

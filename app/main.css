@@ -18,10 +18,14 @@
 }
 
 .tree > .header > .fixed {
-    width: 75px;
+    width: 90px;
     margin-right: 15px;
     text-align: right;
     cursor: pointer;
+}
+
+.tree > .header > .fixed.small {
+    width: 50px;
 }
 
 .tree-node > div {
@@ -41,10 +45,26 @@
 }
 
 .tree-node > div > .column-fixed {
-    width: 75px;
+    width: 90px;
     margin-right: 15px;
     flex-shrink: 0;
     text-align: right;
+    display: flex;
+}
+
+.tree-node > div > .column-fixed.small {
+    width: 50px;
+}
+
+.tree-node > div > .column-fixed > .value {
+    flex: 1;
+}
+
+.tree-node > div > .column-fixed > .percentage {
+    font-size: 11px;
+    color: rgba(0, 0, 0, 0.5);
+    width: 30px;
+    margin-left: 5px;
 }
 
 .tree-node > div > .func {

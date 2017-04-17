@@ -5,12 +5,7 @@ const mapper = (nodes: Object[], edge: 'parents' | 'children'): Object[] => {
     return nodes.map(node => {
         const treeNode = {
             id: node.key,
-            func: node.func,
-            file: node.file,
-            line: node.line,
-            self: node.self,
-            total: node.total,
-            calls: node.calls,
+            perfNode: node,
         };
         if (node[edge]) {
             treeNode.childNodes = mapper(node[edge], edge);
@@ -43,13 +38,34 @@ const getRoots = (graph: Object): Object[] => {
     );
 };
 
+const addStats = (graph: Object, programTotal) => {
+    Object.values(graph).forEach(node => {
+        node.selfPerCall = node.self / node.calls;
+        node.totalPerCall = node.total / node.calls;
+        node.selfRelative = node.self / programTotal;
+        node.selfPerCallRelative = node.selfPerCall / programTotal;
+        node.totalRelative = node.total / programTotal;
+        node.totalPerCallRelative = node.totalPerCall / programTotal;
+    });
+};
+
 class App extends React.Component {
     constructor(props) {
         super(props);
         toGraph(props.data);
         const roots = getRoots(props.data);
+        const programTotal = roots
+            .map(node => node.total)
+            .reduce((acc, time) => acc + time, 0);
+
+        addStats(props.data, programTotal);
+
         const topDown = mapper(roots, 'children');
-        const bottomUp = mapper(Object.values(props.data), 'parents');
+        const bottomUp = mapper(
+            Object.values(props.data),
+            'parents',
+            programTotal
+        );
 
         this.state = {
             topDown,
