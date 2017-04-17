@@ -81,19 +81,21 @@ class App extends React.Component {
             : this.state.bottomUp;
         return (
             <div className="app">
-                <div className="pt-select">
-                    <select
-                        onChange={event =>
-                            this.setState({ type: event.target.value })}
-                        value={type}
-                    >
-                        <option value="top-down">
-                            Tree (top down)
-                        </option>
-                        <option value="bottom-up">
-                            Heavy (bottom up)
-                        </option>
-                    </select>
+                <div className="header">
+                    <div className="pt-select pt-minimal">
+                        <select
+                            onChange={event =>
+                                this.setState({ type: event.target.value })}
+                            value={type}
+                        >
+                            <option value="top-down">
+                                Tree (top down)
+                            </option>
+                            <option value="bottom-up">
+                                Heavy (bottom up)
+                            </option>
+                        </select>
+                    </div>
                 </div>
                 <div className="tree-wrapper">
                     <Tree
