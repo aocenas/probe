@@ -18,14 +18,15 @@
 }
 
 .tree > .header > .fixed {
-    width: 100px;
-    margin-right: 10px;
+    width: 75px;
+    margin-right: 15px;
     text-align: right;
+    cursor: pointer;
 }
 
 .tree-node > div {
-    padding-top: 5px;
-    padding-bottom: 5px;
+    padding-top: 3px;
+    padding-bottom: 3px;
     cursor: pointer;
     display: flex;
     border-bottom: 1px solid rgba(0, 0, 0, 0.05);
@@ -40,8 +41,8 @@
 }
 
 .tree-node > div > .column-fixed {
-    width: 100px;
-    margin-right: 10px;
+    width: 75px;
+    margin-right: 15px;
     flex-shrink: 0;
     text-align: right;
 }
