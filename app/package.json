@@ -1,0 +1,28 @@
+{
+  "name": "app",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@blueprintjs/core": "^1.14.0",
+    "babel-plugin-transform-class-properties": "^6.24.1",
+    "babel-plugin-transform-object-rest-spread": "^6.23.0",
+    "babel-preset-react": "^6.24.1",
+    "babel-register": "^6.24.1",
+    "classnames": "^2.2.5",
+    "electron": "^1.6.2",
+    "electron-devtools-installer": "^2.2.0",
+    "react": "^15.5.4",
+    "react-addons-css-transition-group": "^15.5.2",
+    "react-dom": "^15.5.4"
+  },
+  "devDependencies": {
+    "flow-bin": "^0.44.0",
+    "prettier": "^1.1.0"
+  }
+}
