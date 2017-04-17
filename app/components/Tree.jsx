@@ -66,17 +66,17 @@ class TreeNode extends React.Component {
             <li className="tree-node">
 
                 <div onClick={() => onClick(node, index)}>
-                    <div className="column-fixed">{round(node.self, 6)}</div>
+                    <div className="column-fixed">{format(node.self, 6)}</div>
                     <div className="column-fixed">
-                        {round(node.self / node.calls, 6)}
+                        {format(node.self / node.calls, 6)}
                     </div>
-                    <div className="column-fixed">{round(node.total, 6)}</div>
+                    <div className="column-fixed">{format(node.total, 6)}</div>
                     <div className="column-fixed">
-                        {round(node.total / node.calls, 6)}
+                        {format(node.total / node.calls, 6)}
                     </div>
                     <div
-                        style={{ paddingLeft: indent * 10 }}
-                        className={cx('func', {'no-icon': !icon})}
+                        style={{ paddingLeft: indent * 10 + (!icon ? 18 : 0) }}
+                        className={'func'}
                     >
                         {icon} {node.func}
                     </div>
@@ -94,11 +94,9 @@ class TreeNode extends React.Component {
     }
 }
 
-const round = (number, precision) => {
-    const factor = Math.pow(10, precision);
-    const tempNumber = number * factor;
-    const roundedTempNumber = Math.round(tempNumber);
-    return roundedTempNumber / factor;
+const format = (number) => {
+    const ms = Math.round(number * 10000) / 10;
+    return `${ms.toLocaleString()}ms`
 };
 
 module.exports = Tree;
