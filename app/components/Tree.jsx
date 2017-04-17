@@ -1,3 +1,4 @@
+const _ = require('lodash');
 const React = require('react');
 
 const sortFunctions = {
@@ -118,7 +119,12 @@ class TreeNode extends React.Component {
         const { node, onClick, index } = this.props;
         const { perfNode } = node;
         const indent = index.length;
-        let icon = null;
+        let icon = (
+            <span
+                className="pt-icon pt-icon-caret-down"
+                style={{ visibility: 'hidden' }}
+            />
+        );
         let children = null;
         if (node.childNodes) {
             if (node.isExpanded) {
@@ -171,10 +177,10 @@ class TreeNode extends React.Component {
                         <div className="value">{perfNode.calls}</div>
                     </div>
                     <div
-                        style={{ paddingLeft: indent * 20 + (!icon ? 12 : 0) }}
+                        style={{ paddingLeft: indent * 20 }}
                         className={'func'}
                     >
-                        {icon}{perfNode.func}
+                        <span style={{color: 'rgba(0,0,0, 0.3)'}}>|</span> {icon}{perfNode.func}
                     </div>
 
                     <div className="path">
