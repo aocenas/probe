@@ -118,7 +118,7 @@ class TreeNode extends React.Component {
     render() {
         const { node, onClick, index } = this.props;
         const { perfNode } = node;
-        const indent = index.length;
+        const indent = index.length - 1;
         let icon = (
             <span
                 className="pt-icon pt-icon-caret-down"
@@ -140,6 +140,9 @@ class TreeNode extends React.Component {
                 icon = <span className="pt-icon pt-icon-caret-right" />;
             }
         }
+
+        const percent = Math.round(perfNode.totalRelative * 100) / 100;
+        const color = `rgba(0, 0, 0, ${percent * 0.6 + 0.1})`;
 
         return (
             <li className="tree-node">
@@ -180,7 +183,15 @@ class TreeNode extends React.Component {
                         style={{ paddingLeft: indent * 20 }}
                         className={'func'}
                     >
-                        <span style={{color: 'rgba(0,0,0, 0.3)'}}>|</span> {icon}{perfNode.func}
+                        <div
+                            style={{
+                                borderLeft: `2px solid ${color}`,
+                                paddingLeft: 5,
+                            }}
+                        >
+                            {icon}
+                            {perfNode.func}
+                        </div>
                     </div>
 
                     <div className="path">
