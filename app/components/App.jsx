@@ -1,4 +1,6 @@
 const React = require('react');
+const { ipcRenderer } = require('electron');
+const { NonIdealState } = require('@blueprintjs/core');
 const Tree = require('./Tree');
 
 const mapper = (nodes: Object[], edge: 'parents' | 'children'): Object[] => {
@@ -50,28 +52,35 @@ const addStats = (graph: Object, programTotal) => {
 };
 
 class App extends React.Component {
-    constructor(props) {
-        super(props);
-        toGraph(props.data);
-        const roots = getRoots(props.data);
-        const programTotal = roots
-            .map(node => node.total)
-            .reduce((acc, time) => acc + time, 0);
+    state = {
+        type: 'top-down',
+    };
 
-        addStats(props.data, programTotal);
+    componentDidMount() {
+        ipcRenderer.on('data', (event, message) => {
+            const data = JSON.parse(message);
+            toGraph(data);
+            const roots = getRoots(data);
+            const programTotal = roots
+                .map(node => node.total)
+                .reduce((acc, time) => acc + time, 0);
 
-        const topDown = mapper(roots, 'children');
-        const bottomUp = mapper(
-            Object.values(props.data),
-            'parents',
-            programTotal
-        );
+            addStats(data, programTotal);
 
-        this.state = {
-            topDown,
-            bottomUp,
-            type: 'top-down',
-        };
+            const topDown = mapper(roots, 'children');
+            const bottomUp = mapper(
+                Object.values(data),
+                'parents',
+                programTotal
+            );
+
+            this.state = {
+                topDown,
+                bottomUp,
+                type: 'top-down',
+            };
+            this.setState({ topDown, bottomUp });
+        });
     }
 
     render() {
@@ -79,6 +88,9 @@ class App extends React.Component {
         const tree = type === 'top-down'
             ? this.state.topDown
             : this.state.bottomUp;
+
+        const noData = !this.state.topDown;
+
         return (
             <div className="app">
                 <div className="header">
@@ -87,6 +99,7 @@ class App extends React.Component {
                             onChange={event =>
                                 this.setState({ type: event.target.value })}
                             value={type}
+                            disabled={noData}
                         >
                             <option value="top-down">
                                 Tree (top down)
@@ -97,15 +110,18 @@ class App extends React.Component {
                         </select>
                     </div>
                 </div>
-                <div className="tree-wrapper">
-                    <Tree
-                        data={tree}
-                        onClick={(node, path) => {
-                            node.isExpanded = !node.isExpanded;
-                            this.setState(this.state);
-                        }}
-                    />
-                </div>
+
+                {noData
+                    ? <NonIdealState title="No data yet" visual="flows"/>
+                    : <div className="tree-wrapper">
+                          <Tree
+                              data={tree}
+                              onClick={(node, path) => {
+                                  node.isExpanded = !node.isExpanded;
+                                  this.setState(this.state);
+                              }}
+                          />
+                      </div>}
             </div>
         );
     }

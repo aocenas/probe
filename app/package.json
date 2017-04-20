@@ -17,6 +17,7 @@
     "classnames": "^2.2.5",
     "electron": "^1.6.2",
     "electron-devtools-installer": "^2.2.0",
+    "lodash": "^4.17.4",
     "react": "^15.5.4",
     "react-addons-css-transition-group": "^15.5.2",
     "react-dom": "^15.5.4"
