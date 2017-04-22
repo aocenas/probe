@@ -10,6 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "@blueprintjs/core": "^1.14.0",
+    "babel-eslint": "^7.2.2",
     "babel-plugin-transform-class-properties": "^6.24.1",
     "babel-plugin-transform-object-rest-spread": "^6.23.0",
     "babel-preset-react": "^6.24.1",
@@ -17,7 +18,10 @@
     "classnames": "^2.2.5",
     "electron": "^1.6.2",
     "electron-devtools-installer": "^2.2.0",
+    "eslint": "^3.19.0",
+    "eslint-plugin-react": "^6.10.3",
     "lodash": "^4.17.4",
+    "moment": "^2.18.1",
     "react": "^15.5.4",
     "react-addons-css-transition-group": "^15.5.2",
     "react-dom": "^15.5.4"
