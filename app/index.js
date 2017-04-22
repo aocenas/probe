@@ -3,11 +3,14 @@ const path = require('path');
 const url = require('url');
 const http = require('http');
 
-const { app, BrowserWindow } = require('electron');
+const { app, BrowserWindow, ipcMain } = require('electron');
+
+const { storeData, readData } = require('./utils');
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let win;
+console.log(app.getPath('userData'));
 
 function createWindow() {
     // Create the browser window.
@@ -33,9 +36,14 @@ function createWindow() {
         win = null;
     });
 
-    createServer((data) => {
-        win.webContents.send('data', data);
-    })
+    ipcMain.on('request-data', (event, arg) => {
+        event.sender.send('data', readData());
+    });
+
+    createServer(newData => {
+        storeData(newData);
+        win.webContents.send('data', newData);
+    });
 }
 
 // This method will be called when Electron has finished
@@ -60,10 +68,10 @@ app.on('activate', () => {
     }
 });
 
-const createServer = (onData) => {
+const createServer = onData => {
     const server = http.createServer((req, res) => {
         req.on('data', data => {
-            onData(data.toString())
+            onData(data.toString());
         });
 
         req.on('end', () => {

@@ -81,6 +81,7 @@ class App extends React.Component {
             };
             this.setState({ topDown, bottomUp });
         });
+        ipcRenderer.send('request-data')
     }
 
     render() {
