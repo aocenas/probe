@@ -6,12 +6,15 @@
 .app > .tree-wrapper {
     margin-top: 30px;
     font-size: 12px;
+    width: 100%;
+    overflow: auto;
 }
 
 .tree {
     padding: 0;
     margin: 0;
     list-style: none;
+    min-width: -webkit-min-content;
 }
 
 .tree > .header {
@@ -39,6 +42,7 @@
     cursor: pointer;
     display: flex;
     border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    min-width: -webkit-min-content;
 }
 
 .tree-node > div:hover {
