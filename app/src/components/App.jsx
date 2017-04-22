@@ -51,41 +51,71 @@ const addStats = (graph: Object, programTotal) => {
     });
 };
 
+const parseData = (data: Object): [Object[], Object[]] => {
+    toGraph(data);
+    const roots = getRoots(data);
+    const programTotal = roots
+        .map(node => node.total)
+        .reduce((acc, time) => acc + time, 0);
+
+    addStats(data, programTotal);
+
+    const topDown = mapper(roots, 'children');
+    const bottomUp = mapper(Object.values(data), 'parents', programTotal);
+    return [topDown, bottomUp];
+};
+
+type State = {
+    type: 'top-down' | 'bottom-up',
+    files: string[],
+    currentFile?: string,
+    topDown?: Object[],
+    bottomUp?: Object[],
+};
+
 class App extends React.Component {
-    state = {
+    state: State = {
         type: 'top-down',
+        files: [],
     };
 
     componentDidMount() {
-        ipcRenderer.on('data', (event, message) => {
-            const data = JSON.parse(message);
-            toGraph(data);
-            const roots = getRoots(data);
-            const programTotal = roots
-                .map(node => node.total)
-                .reduce((acc, time) => acc + time, 0);
-
-            addStats(data, programTotal);
-
-            const topDown = mapper(roots, 'children');
-            const bottomUp = mapper(
-                Object.values(data),
-                'parents',
-                programTotal
-            );
-
-            this.state = {
-                topDown,
-                bottomUp,
-                type: 'top-down',
-            };
-            this.setState({ topDown, bottomUp });
+        ipcRenderer.on('initial-data', (event, message) => {
+            if (message.files.length) {
+                const [topDown, bottomUp] = parseData(message.tree);
+                this.setState({
+                    topDown,
+                    bottomUp,
+                    files: message.files,
+                });
+            }
         });
-        ipcRenderer.send('request-data')
+        ipcRenderer.on('new-data', (event, message) => {
+            const isNew = !this.state.files.includes(message.name);
+            if (isNew) {
+                const [topDown, bottomUp] = parseData(message.tree);
+                this.setState({
+                    topDown,
+                    bottomUp,
+                    files: [...this.state.files, message.name],
+                    currentFile: message.name,
+                });
+            } else {
+                if (message.name === this.state.currentFile) {
+                    const [topDown, bottomUp] = parseData(message.tree);
+                    this.setState({
+                        topDown,
+                        bottomUp,
+                    });
+                }
+                // else throw away, user probably changed file before it arrived
+            }
+        });
+        ipcRenderer.send('request-initial-data');
     }
 
     render() {
-        const { type } = this.state;
+        const { type, currentFile, files } = this.state;
         const tree = type === 'top-down'
             ? this.state.topDown
             : this.state.bottomUp;
@@ -110,10 +140,34 @@ class App extends React.Component {
                             </option>
                         </select>
                     </div>
+                    {!noData &&
+                        <div className="pt-select pt-minimal">
+                            <select
+                                onChange={event => {
+                                    this.setState({
+                                        currentFile: event.target.value,
+                                    });
+                                    ipcRenderer.send(
+                                        'request-data',
+                                        event.target.value
+                                    );
+                                }}
+                                value={currentFile}
+                                disabled={noData}
+                            >
+                                {files.map(file => {
+                                    return (
+                                        <option key={file} value={file}>
+                                            {file}
+                                        </option>
+                                    );
+                                })}
+                            </select>
+                        </div>}
                 </div>
 
                 {noData
-                    ? <NonIdealState title="No data yet" visual="flows"/>
+                    ? <NonIdealState title="No data yet" visual="flows" />
                     : <div className="tree-wrapper">
                           <Tree
                               data={tree}
