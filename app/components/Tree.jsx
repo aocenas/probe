@@ -1,23 +1,18 @@
-const _ = require('lodash');
 const React = require('react');
 
 const sortFunctions = {
     self: (order: number) => (a, b) =>
-        Math.round((b.perfNode.self - a.perfNode.self) * 10000) * order,
+        (b.perfNode.self - a.perfNode.self) * order,
     selfPerCall: (order: number) => (a, b) =>
-        Math.round(
-            b.perfNode.self / b.perfNode.calls -
-                a.perfNode.self / a.perfNode.calls,
-            10000
-        ) * order,
+        (b.perfNode.self / b.perfNode.calls -
+            a.perfNode.self / a.perfNode.calls) *
+        order,
     total: (order: number) => (a, b) =>
-        Math.round((b.perfNode.total - a.perfNode.total) * 10000) * order,
+        (b.perfNode.total - a.perfNode.total) * order,
     totalPerCall: (order: number) => (a, b) =>
-        Math.round(
-            (b.perfNode.total / b.perfNode.calls -
-                a.perfNode.total / a.perfNode.calls) *
-                10000
-        ) * order,
+        (b.perfNode.total / b.perfNode.calls -
+            a.perfNode.total / a.perfNode.calls) *
+        order,
     calls: (order: number) => (a, b) =>
         b.perfNode.calls - a.perfNode.calls * order,
 };
@@ -85,6 +80,7 @@ class Tree extends React.Component {
                         onClick={onClick}
                         index={[...indexTree, index]}
                         sort={sort}
+                        desc={desc}
                     />
                 ))}
             </ul>
@@ -113,10 +109,12 @@ class TreeNode extends React.Component {
         node: React.PropTypes.object.isRequired,
         onClick: React.PropTypes.func.isRequired,
         index: React.PropTypes.arrayOf(React.PropTypes.number),
+        sort: React.PropTypes.string,
+        desc: React.PropTypes.bool,
     };
 
     render() {
-        const { node, onClick, index } = this.props;
+        const { node, onClick, index, sort, desc } = this.props;
         const { perfNode } = node;
         const indent = index.length - 1;
         let icon = (
@@ -134,6 +132,8 @@ class TreeNode extends React.Component {
                         data={node.childNodes}
                         onClick={onClick}
                         index={index}
+                        sort={sort}
+                        desc={desc}
                     />
                 );
             } else {
