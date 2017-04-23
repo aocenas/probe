@@ -67,11 +67,21 @@ function createWindow() {
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.on('ready', () => {
+    createWindow();
     const dataPath = getDataDirPath();
     if (!fs.existsSync(dataPath)) {
         fs.mkdirSync(dataPath);
     }
-    createWindow();
+
+    const {
+        default: installExtension,
+        REACT_DEVELOPER_TOOLS,
+    } = require('electron-devtools-installer');
+
+    installExtension(REACT_DEVELOPER_TOOLS)
+        .then(name => console.log(`Added Extension:  ${name}`))
+        .catch(err => console.log('An error occurred: ', err));
+
 });
 
 // Quit when all windows are closed.
