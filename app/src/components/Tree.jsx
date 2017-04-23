@@ -1,4 +1,5 @@
 const React = require('react');
+const PT = require('prop-types');
 
 const sortFunctions = {
     self: (order: number) => (a, b) =>
@@ -19,11 +20,11 @@ const sortFunctions = {
 
 class Tree extends React.Component {
     static propTypes = {
-        data: React.PropTypes.array.isRequired,
-        onClick: React.PropTypes.func.isRequired,
-        index: React.PropTypes.arrayOf(React.PropTypes.number),
-        sort: React.PropTypes.string,
-        desc: React.PropTypes.bool,
+        data: PT.array.isRequired,
+        onClick: PT.func.isRequired,
+        index: PT.arrayOf(PT.number),
+        sort: PT.string,
+        desc: PT.bool,
     };
 
     state: {
@@ -106,11 +107,11 @@ class Tree extends React.Component {
 
 class TreeNode extends React.Component {
     static propTypes = {
-        node: React.PropTypes.object.isRequired,
-        onClick: React.PropTypes.func.isRequired,
-        index: React.PropTypes.arrayOf(React.PropTypes.number),
-        sort: React.PropTypes.string,
-        desc: React.PropTypes.bool,
+        node: PT.object.isRequired,
+        onClick: PT.func.isRequired,
+        index: PT.arrayOf(PT.number),
+        sort: PT.string,
+        desc: PT.bool,
     };
 
     render() {
