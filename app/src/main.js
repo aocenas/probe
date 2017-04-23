@@ -2,14 +2,19 @@ const path = require('path');
 const url = require('url');
 const fs = require('fs');
 
-const { app, BrowserWindow, ipcMain } = require('electron');
+const { app, BrowserWindow } = require('electron');
 
-const { storeData, readData, getFiles, getDataDirPath } = require('./utils');
+const {
+    storeData,
+    getDataDirPath,
+} = require('./utils/dataFiles');
+const { getSettings } = require('./utils/settings');
 const createServer = require('./server');
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let win;
+let server;
 
 function createWindow() {
     // Create the browser window.
@@ -25,7 +30,7 @@ function createWindow() {
     );
 
     // Open the DevTools.
-    // win.webContents.openDevTools();
+    win.webContents.openDevTools();
 
     // Emitted when the window is closed.
     win.on('closed', () => {
@@ -35,43 +40,20 @@ function createWindow() {
         win = null;
     });
 
-    ipcMain.on('request-initial-data', (event, arg) => {
-        const data = {};
-        data.files = getFiles();
-        if (data.files.length) {
-            data.tree = readData(data.files.slice(-1)[0]);
-        }
-        event.sender.send('initial-data', data);
-    });
-
-    ipcMain.on('request-data', (event, arg) => {
-        const newData = readData(arg);
-        const data = {
-            tree: newData,
-            name: arg,
-        };
-        event.sender.send('new-data', data);
-    });
-
-    createServer(newData => {
-        const dataParsed = JSON.parse(newData);
-        const fileName = storeData(dataParsed);
-        win.webContents.send('new-data', {
-            tree: dataParsed,
-            name: fileName,
-        });
-    });
+    require('./events');
 }
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.on('ready', () => {
-    createWindow();
     const dataPath = getDataDirPath();
     if (!fs.existsSync(dataPath)) {
         fs.mkdirSync(dataPath);
     }
+
+    createWindow();
+    setupServer(getSettings().serverPort);
 
     const {
         default: installExtension,
@@ -81,7 +63,13 @@ app.on('ready', () => {
     installExtension(REACT_DEVELOPER_TOOLS)
         .then(name => console.log(`Added Extension:  ${name}`))
         .catch(err => console.log('An error occurred: ', err));
+});
 
+app.on('settings-change', (change) => {
+    if (change.prev.serverPort !== change.next.serverPort) {
+        server.close();
+        setupServer(change.next.serverPort);
+    }
 });
 
 // Quit when all windows are closed.
@@ -101,3 +89,18 @@ app.on('activate', () => {
     }
 });
 
+const setupServer = (port) => {
+    if (server) {
+        server.close();
+    }
+    server = createServer(port, newData => {
+        const dataParsed = JSON.parse(newData);
+        const fileName = storeData(dataParsed);
+        if (win) {
+            win.webContents.send('new-data', {
+                tree: dataParsed,
+                name: fileName,
+            });
+        }
+    });
+};

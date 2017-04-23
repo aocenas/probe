@@ -1,6 +1,6 @@
 const http = require('http');
 
-const createServer = (onData: (string) => void) => {
+const createServer = (port: number, onData: (string) => void) => {
     const server = http.createServer((req, res) => {
         req.on('data', data => {
             onData(data.toString());
@@ -11,7 +11,7 @@ const createServer = (onData: (string) => void) => {
             res.end('ok');
         });
     });
-    server.listen(19876, 'localhost');
+    server.listen(port, 'localhost');
     return server;
 };
 
