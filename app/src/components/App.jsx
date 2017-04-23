@@ -1,4 +1,5 @@
 const React = require('react');
+const moment = require('moment');
 const { ipcRenderer } = require('electron');
 const { NonIdealState } = require('@blueprintjs/core');
 const Tree = require('./Tree');
@@ -158,7 +159,7 @@ class App extends React.Component {
                                 {files.map(file => {
                                     return (
                                         <option key={file} value={file}>
-                                            {file}
+                                            {parseDateFromFileName(file)}
                                         </option>
                                     );
                                 })}
@@ -181,5 +182,15 @@ class App extends React.Component {
         );
     }
 }
+
+const parseDateFromFileName = (fileName: string): string => {
+    const matched = fileName.match(/^data_(.*)\.json$/);
+    if (matched) {
+        return moment(matched[1]).format('YYYY-MM-DD HH:mm:ss');
+    } else {
+        return fileName;
+    }
+
+};
 
 module.exports = App;
