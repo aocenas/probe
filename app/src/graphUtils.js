@@ -1,16 +1,3 @@
-const mapper = (nodes: Object[], edge: 'parents' | 'children'): Object[] => {
-    return nodes.map(node => {
-        const treeNode = {
-            id: node.key,
-            perfNode: node,
-        };
-        if (node[edge]) {
-            treeNode.childNodes = mapper(node[edge], edge);
-        }
-        return treeNode;
-    });
-};
-
 const toGraph = (nodes: Object) => {
     Object.keys(nodes)
         .map(key => {
@@ -26,12 +13,13 @@ const toGraph = (nodes: Object) => {
                 node.parents = node.parents || [];
                 node.parents.push(nodes[callerKey]);
             });
+            delete node.callers;
         });
 };
 
 const getRoots = (graph: Object): Object[] => {
     return Object.values(graph).filter(
-        node => !(node.callers && Object.keys(node.callers).length)
+        node => !(node.parents && node.parents.length)
     );
 };
 
@@ -47,7 +35,6 @@ const addStats = (graph: Object, programTotal) => {
 };
 
 module.exports = {
-    mapper,
     toGraph,
     getRoots,
     addStats,

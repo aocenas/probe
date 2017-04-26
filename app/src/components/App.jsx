@@ -5,7 +5,7 @@ const { NonIdealState, Button } = require('@blueprintjs/core');
 
 const Tree = require('./Tree');
 const Settings = require('./Settings');
-const { mapper, toGraph, addStats, getRoots } = require('../graphUtils');
+const { toGraph, addStats, getRoots } = require('../graphUtils');
 
 const parseData = (data: Object): [Object[], Object[]] => {
     toGraph(data);
@@ -16,8 +16,8 @@ const parseData = (data: Object): [Object[], Object[]] => {
 
     addStats(data, programTotal);
 
-    const topDown = mapper(roots, 'children');
-    const bottomUp = mapper(Object.values(data), 'parents', programTotal);
+    const topDown = roots;
+    const bottomUp = Object.values(data);
     return [topDown, bottomUp];
 };
 
@@ -90,7 +90,7 @@ class App extends React.Component {
                     <Settings
                         isOpen={settingsOpen}
                         onClose={() => this.setState({ settingsOpen: false })}
-                        onSave={(settings) => {
+                        onSave={settings => {
                             ipcRenderer.send('settings-change', settings);
                             this.setState({
                                 settingsOpen: false,
@@ -98,8 +98,7 @@ class App extends React.Component {
                             });
                         }}
                         settings={settings}
-                    />
-                }
+                    />}
                 <div className="header">
                     <div className="left-group">
                         <div className="pt-select pt-minimal">
@@ -154,13 +153,7 @@ class App extends React.Component {
                 {noData
                     ? <NonIdealState title="No data yet" visual="flows" />
                     : <div className="tree-wrapper">
-                          <Tree
-                              data={tree}
-                              onClick={(node, path) => {
-                                  node.isExpanded = !node.isExpanded;
-                                  this.setState(this.state);
-                              }}
-                          />
+                          <Tree data={tree} type={type} dataId={currentFile}/>
                       </div>}
             </div>
         );

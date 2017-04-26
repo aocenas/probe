@@ -84,6 +84,7 @@
 }
 
 .tree-node > div > .path {
+    white-space: nowrap;
     flex-shrink: 1;
     margin-left: 15px;
     color: rgba(0, 0, 0, 0.5);

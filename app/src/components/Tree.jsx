@@ -1,30 +1,30 @@
+const _ = require('lodash');
 const React = require('react');
 const PT = require('prop-types');
 
 const sortFunctions = {
-    self: (order: number) => (a, b) =>
-        (b.perfNode.self - a.perfNode.self) * order,
+    self: (order: number) => (a, b) => (b.self - a.self) * order,
     selfPerCall: (order: number) => (a, b) =>
-        (b.perfNode.self / b.perfNode.calls -
-            a.perfNode.self / a.perfNode.calls) *
-        order,
-    total: (order: number) => (a, b) =>
-        (b.perfNode.total - a.perfNode.total) * order,
+        (b.self / b.calls - a.self / a.calls) * order,
+    total: (order: number) => (a, b) => (b.total - a.total) * order,
     totalPerCall: (order: number) => (a, b) =>
-        (b.perfNode.total / b.perfNode.calls -
-            a.perfNode.total / a.perfNode.calls) *
-        order,
-    calls: (order: number) => (a, b) =>
-        b.perfNode.calls - a.perfNode.calls * order,
+        (b.total / b.calls - a.total / a.calls) * order,
+    calls: (order: number) => (a, b) => b.calls - a.calls * order,
 };
 
 class Tree extends React.Component {
     static propTypes = {
         data: PT.array.isRequired,
-        onClick: PT.func.isRequired,
-        index: PT.arrayOf(PT.number),
         sort: PT.string,
         desc: PT.bool,
+        type: PT.oneOf(['top-down', 'bottom-up']),
+        subtree: PT.bool,
+        indent: PT.number,
+        dataId: PT.string,
+    };
+
+    static defaultProps = {
+        indent: 0,
     };
 
     state: {
@@ -32,13 +32,25 @@ class Tree extends React.Component {
         desc: boolean,
     } = {};
 
+    shouldComponentUpdate(nextProps, nextState) {
+        const propsKeys = ['sort', 'desc', 'type', 'dataId'];
+        const stateKeys = ['sort', 'desc'];
+        return !(_.isEqual(
+            _.pick(nextProps, propsKeys),
+            _.pick(this.props, propsKeys)
+        ) &&
+            _.isEqual(
+                _.pick(nextState, stateKeys),
+                _.pick(this.state, stateKeys)
+            ));
+    }
+
     render() {
-        const { data, onClick } = this.props;
+        const { data, type, subtree, indent } = this.props;
         const sort = this.props.sort || this.state.sort;
         const desc = this.props.desc === undefined
             ? this.state.desc
             : this.props.desc;
-        const indexTree = this.props.index || [];
         let dataSorted = data;
         if (sort) {
             dataSorted = [...data].sort(sortFunctions[sort](desc ? 1 : -1));
@@ -46,7 +58,7 @@ class Tree extends React.Component {
 
         return (
             <ul className="tree">
-                {indexTree.length === 0 &&
+                {!subtree &&
                     <li className="header">
                         <div className="fixed" onClick={this._setSort('self')}>
                             {this._sortIcon('self')} Self
@@ -76,12 +88,12 @@ class Tree extends React.Component {
                     </li>}
                 {dataSorted.map((node, index) => (
                     <TreeNode
-                        key={node.id}
+                        key={node.key}
                         node={node}
-                        onClick={onClick}
-                        index={[...indexTree, index]}
+                        indent={indent}
                         sort={sort}
                         desc={desc}
+                        type={type}
                     />
                 ))}
             </ul>
@@ -108,16 +120,34 @@ class Tree extends React.Component {
 class TreeNode extends React.Component {
     static propTypes = {
         node: PT.object.isRequired,
-        onClick: PT.func.isRequired,
-        index: PT.arrayOf(PT.number),
+        indent: PT.number,
         sort: PT.string,
         desc: PT.bool,
+        type: PT.oneOf(['top-down', 'bottom-up']),
     };
 
+    state = {
+        expanded: false,
+    };
+
+    shouldComponentUpdate(nextProps, nextState) {
+        const propsKeys = ['sort', 'desc', 'type'];
+        const stateKeys = ['expanded'];
+        return !(_.isEqual(
+            _.pick(nextProps, propsKeys),
+            _.pick(this.props, propsKeys)
+        ) &&
+        _.isEqual(
+            _.pick(nextState, stateKeys),
+            _.pick(this.state, stateKeys)
+        ));
+    }
+
     render() {
-        const { node, onClick, index, sort, desc } = this.props;
-        const { perfNode } = node;
-        const indent = index.length - 1;
+        const { node, indent, sort, desc, type } = this.props;
+        const { expanded } = this.state;
+        const edgeType = type === 'top-down' ? 'children' : 'parents';
+
         let icon = (
             <span
                 className="pt-icon pt-icon-caret-down"
@@ -125,16 +155,17 @@ class TreeNode extends React.Component {
             />
         );
         let children = null;
-        if (node.childNodes) {
-            if (node.isExpanded) {
+        if (node[edgeType]) {
+            if (expanded) {
                 icon = <span className="pt-icon pt-icon-caret-down" />;
                 children = (
                     <Tree
-                        data={node.childNodes}
-                        onClick={onClick}
-                        index={index}
+                        data={node[edgeType]}
+                        indent={indent + 1}
                         sort={sort}
                         desc={desc}
+                        type={type}
+                        subtree={true}
                     />
                 );
             } else {
@@ -142,43 +173,43 @@ class TreeNode extends React.Component {
             }
         }
 
-        const percent = Math.round(perfNode.totalRelative * 100) / 100;
+        const percent = Math.round(node.totalRelative * 100) / 100;
         const color = `rgba(0, 0, 0, ${percent * 0.6 + 0.1})`;
 
         return (
             <li className="tree-node">
 
-                <div onClick={() => onClick(node, index)}>
+                <div onClick={() => this.setState({ expanded: !expanded })}>
                     <div className="column-fixed">
-                        <div className="value">{format(perfNode.self, 6)}</div>
+                        <div className="value">{format(node.self, 6)}</div>
                         <div className="percentage">
-                            {formatRelative(perfNode.selfRelative)}
+                            {formatRelative(node.selfRelative)}
                         </div>
                     </div>
                     <div className="column-fixed">
                         <div className="value">
-                            {format(perfNode.selfPerCall, 6)}
+                            {format(node.selfPerCall, 6)}
                         </div>
                         <div className="percentage">
-                            {formatRelative(perfNode.selfPerCallRelative)}
+                            {formatRelative(node.selfPerCallRelative)}
                         </div>
                     </div>
                     <div className="column-fixed">
-                        <div className="value">{format(perfNode.total, 6)}</div>
+                        <div className="value">{format(node.total, 6)}</div>
                         <div className="percentage">
-                            {formatRelative(perfNode.totalRelative)}
+                            {formatRelative(node.totalRelative)}
                         </div>
                     </div>
                     <div className="column-fixed">
                         <div className="value">
-                            {format(perfNode.totalPerCall, 6)}
+                            {format(node.totalPerCall, 6)}
                         </div>
                         <div className="percentage">
-                            {formatRelative(perfNode.totalPerCallRelative)}
+                            {formatRelative(node.totalPerCallRelative)}
                         </div>
                     </div>
                     <div className="column-fixed small">
-                        <div className="value">{perfNode.calls}</div>
+                        <div className="value">{node.calls}</div>
                     </div>
                     <div
                         style={{ paddingLeft: indent * 20 }}
@@ -191,12 +222,12 @@ class TreeNode extends React.Component {
                             }}
                         >
                             {icon}
-                            {perfNode.func}
+                            {node.func}
                         </div>
                     </div>
 
                     <div className="path">
-                        {perfNode.file}#{perfNode.line}
+                        {node.file}#{node.line}
                     </div>
                 </div>
 
