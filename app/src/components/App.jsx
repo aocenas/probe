@@ -4,6 +4,7 @@ const { ipcRenderer } = require('electron');
 const { NonIdealState, Button } = require('@blueprintjs/core');
 
 const Tree = require('./Tree');
+const Flame = require('./Flame');
 const Settings = require('./Settings');
 const { toGraph, addStats, getRoots } = require('../graphUtils');
 
@@ -46,6 +47,7 @@ class App extends React.Component {
                     topDown,
                     bottomUp,
                     files: message.files,
+                    tree: message.tree,
                 });
             }
             this.setState({
@@ -61,6 +63,7 @@ class App extends React.Component {
                     bottomUp,
                     files: [...this.state.files, message.name],
                     currentFile: message.name,
+                    tree: message.tree,
                 });
             } else {
                 if (message.name === this.state.currentFile) {
@@ -152,9 +155,10 @@ class App extends React.Component {
 
                 {noData
                     ? <NonIdealState title="No data yet" visual="flows" />
-                    : <div className="tree-wrapper">
-                          <Tree data={tree} type={type} dataId={currentFile}/>
-                      </div>}
+                    : <div>
+                        <Flame tree={this.state.tree} />
+                    </div>
+                        }
             </div>
         );
     }
