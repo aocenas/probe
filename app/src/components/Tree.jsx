@@ -14,7 +14,8 @@ const sortFunctions = {
 
 class Tree extends React.Component {
     static propTypes = {
-        data: PT.array.isRequired,
+        itemKeys: PT.arrayOf(PT.string).isRequired,
+        allItems: PT.object.isRequired,
         sort: PT.string,
         desc: PT.bool,
         type: PT.oneOf(['top-down', 'bottom-up']),
@@ -46,14 +47,15 @@ class Tree extends React.Component {
     }
 
     render() {
-        const { data, type, subtree, indent } = this.props;
+        const { itemKeys, allItems, type, subtree, indent } = this.props;
         const sort = this.props.sort || this.state.sort;
         const desc = this.props.desc === undefined
             ? this.state.desc
             : this.props.desc;
-        let dataSorted = data;
+
+        let dataSorted = itemKeys.map(key => allItems[key]);
         if (sort) {
-            dataSorted = [...data].sort(sortFunctions[sort](desc ? 1 : -1));
+            dataSorted = dataSorted.sort(sortFunctions[sort](desc ? 1 : -1));
         }
 
         return (
@@ -86,9 +88,10 @@ class Tree extends React.Component {
                         </div>
                         <div>Function</div>
                     </li>}
-                {dataSorted.map((node, index) => (
+                {dataSorted.map(node => (
                     <TreeNode
                         key={node.key}
+                        allItems={allItems}
                         node={node}
                         indent={indent}
                         sort={sort}
@@ -124,6 +127,8 @@ class TreeNode extends React.Component {
         sort: PT.string,
         desc: PT.bool,
         type: PT.oneOf(['top-down', 'bottom-up']),
+        dataId: PT.string,
+        allItems: PT.object.isRequired,
     };
 
     state = {
@@ -131,7 +136,7 @@ class TreeNode extends React.Component {
     };
 
     shouldComponentUpdate(nextProps, nextState) {
-        const propsKeys = ['sort', 'desc', 'type'];
+        const propsKeys = ['sort', 'desc', 'type', 'dataId'];
         const stateKeys = ['expanded'];
         return !(_.isEqual(
             _.pick(nextProps, propsKeys),
@@ -144,7 +149,7 @@ class TreeNode extends React.Component {
     }
 
     render() {
-        const { node, indent, sort, desc, type } = this.props;
+        const { node, indent, sort, desc, type, allItems, dataId } = this.props;
         const { expanded } = this.state;
         const edgeType = type === 'top-down' ? 'children' : 'parents';
 
@@ -155,17 +160,19 @@ class TreeNode extends React.Component {
             />
         );
         let children = null;
-        if (node[edgeType]) {
+        if (node[edgeType] && Object.keys(node[edgeType]).length) {
             if (expanded) {
                 icon = <span className="pt-icon pt-icon-caret-down" />;
                 children = (
                     <Tree
-                        data={node[edgeType]}
+                        itemKeys={Object.keys(node[edgeType])}
                         indent={indent + 1}
                         sort={sort}
                         desc={desc}
                         type={type}
                         subtree={true}
+                        allItems={allItems}
+                        dataId={dataId}
                     />
                 );
             } else {

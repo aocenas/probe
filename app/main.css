@@ -6,12 +6,19 @@
     margin-bottom: 30px;
 }
 
-.app > .tree-wrapper {
+.app > .content-wrapper {
     margin-top: 30px;
     font-size: 12px;
     width: 100%;
-    overflow: auto;
+    overflow: hidden;
     padding: 10px;
+}
+
+.app > .content-wrapper > .tree-wrapper {
+    width: 100%;
+    overflow: auto;
+    margin-top: 30px;
+    padding-bottom: 20px;
 }
 
 .tree {
@@ -47,6 +54,7 @@
     display: flex;
     border-bottom: 1px solid rgba(0, 0, 0, 0.05);
     min-width: -webkit-min-content;
+    align-items: baseline;
 }
 
 .tree-node > div:hover {
@@ -63,6 +71,7 @@
     flex-shrink: 0;
     text-align: right;
     display: flex;
+    align-items: baseline;
 }
 
 .tree-node > div > .column-fixed.small {

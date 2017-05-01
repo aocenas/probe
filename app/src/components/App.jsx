@@ -6,7 +6,12 @@ const { NonIdealState, Button } = require('@blueprintjs/core');
 const Tree = require('./Tree');
 const Flame = require('./Flame');
 const Settings = require('./Settings');
-const { toGraph, addStats, getRoots } = require('../graphUtils');
+const {
+    toGraph,
+    addStats,
+    getRoots,
+    processCallTree,
+} = require('../graphUtils');
 
 const parseData = (data: Object): [Object[], Object[]] => {
     toGraph(data);
@@ -42,10 +47,10 @@ class App extends React.Component {
     componentDidMount() {
         ipcRenderer.on('initial-data', (event, message) => {
             if (message.files.length) {
-                const [topDown, bottomUp] = parseData(message.tree);
+                const { items, roots } = processCallTree(message.tree);
                 this.setState({
-                    topDown,
-                    bottomUp,
+                    topDown: roots,
+                    bottomUp: items,
                     files: message.files,
                     tree: message.tree,
                 });
@@ -57,20 +62,21 @@ class App extends React.Component {
         ipcRenderer.on('new-data', (event, message) => {
             const isNew = !this.state.files.includes(message.name);
             if (isNew) {
-                const [topDown, bottomUp] = parseData(message.tree);
+                const { items, roots } = processCallTree(message.tree);
                 this.setState({
-                    topDown,
-                    bottomUp,
+                    topDown: roots,
+                    bottomUp: items,
                     files: [...this.state.files, message.name],
                     currentFile: message.name,
                     tree: message.tree,
                 });
             } else {
                 if (message.name === this.state.currentFile) {
-                    const [topDown, bottomUp] = parseData(message.tree);
+                    const { items, roots } = processCallTree(message.tree);
                     this.setState({
-                        topDown,
-                        bottomUp,
+                        topDown: roots,
+                        bottomUp: items,
+                        tree: message.tree,
                     });
                 }
                 // else throw away, user probably changed file before it arrived
@@ -80,8 +86,15 @@ class App extends React.Component {
     }
 
     render() {
-        const { type, currentFile, files, settingsOpen, settings } = this.state;
-        const tree = type === 'top-down'
+        const {
+            type,
+            currentFile,
+            files,
+            settingsOpen,
+            settings,
+            tree,
+        } = this.state;
+        const items = type === 'top-down'
             ? this.state.topDown
             : this.state.bottomUp;
 
@@ -155,10 +168,17 @@ class App extends React.Component {
 
                 {noData
                     ? <NonIdealState title="No data yet" visual="flows" />
-                    : <div>
-                        <Flame tree={this.state.tree} />
-                    </div>
-                        }
+                    : <div className="content-wrapper">
+                          <Flame tree={tree} />
+                          <div className="tree-wrapper">
+                              <Tree
+                                  itemKeys={Object.keys(items)}
+                                  allItems={this.state.bottomUp}
+                                  type={type}
+                                  dataId={currentFile}
+                              />
+                          </div>
+                      </div>}
             </div>
         );
     }

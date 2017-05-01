@@ -39,10 +39,10 @@ class Flame extends React.Component {
                                 >
                                     <Tooltip
                                         key={index}
-                                        content={item.name}
+                                        content={item.func}
                                     >
                                         <div className="item-content">
-                                            {item.name}
+                                            {item.func}
                                         </div>
                                     </Tooltip>
                                 </div>
