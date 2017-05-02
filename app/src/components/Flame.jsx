@@ -28,6 +28,7 @@ class Flame extends React.Component {
                         {level.map((item, index) => {
                             return (
                                 <div
+                                    key={index}
                                     className="item"
                                     style={{
                                         left: normalize(item.start) * 100 + '%',
@@ -37,10 +38,7 @@ class Flame extends React.Component {
                                             '%',
                                     }}
                                 >
-                                    <Tooltip
-                                        key={index}
-                                        content={item.func}
-                                    >
+                                    <Tooltip content={item.func}>
                                         <div className="item-content">
                                             {item.func}
                                         </div>
