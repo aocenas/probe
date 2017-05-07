@@ -1,4 +1,3 @@
-import sys
 import functools
 import inspect
 
@@ -12,7 +11,7 @@ def get_name(event, frame, arg):
     else:
         obj = arg
 
-    return _get_full_name(obj) or func_name
+    return _get_full_name(obj) if obj else func_name
 
 
 def _get_callable_object(frame):
@@ -24,9 +23,12 @@ def _get_callable_object(frame):
     func_name = co.co_name
 
     if func_name in frame.f_globals:
-        if frame.f_globals[func_name].__code__ is co:
-            # free function
-            return frame.f_globals[func_name]
+        try:
+            if frame.f_globals[func_name].__code__ is co:
+                # free function
+                return frame.f_globals[func_name]
+        except Exception:
+            pass
 
     for name, obj in frame.f_globals.items():
         try:

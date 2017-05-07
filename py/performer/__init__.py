@@ -1,8 +1,8 @@
-import sys
 import json
-import requests
+import sys
 import timeit
-from pprint import pprint
+
+import requests
 from .naming import get_name
 
 
@@ -13,45 +13,46 @@ class Performer:
             'start': timeit.default_timer(),
         }
         self.stack = [self.root]
+        self.call = 0
+        self.ret = 0
 
     def __enter__(self):
-        # self.pr = cProfile.Profile()
-        # self.pr.enable()
+        self.root['start'] = timeit.default_timer()
         sys.setprofile(self._profile)
 
     def __exit__(self, exc_type, exc_value, traceback):
         sys.setprofile(None)
         self.root['end'] = timeit.default_timer()
-        # last one is our own __exit__ func
+
+        # last one is usually our own __exit__ func
         self.root['children'].pop()
-        # self.pr.disable()
+
         if not exc_type:
-            # ps = pstats.Stats(self.pr)
-            # print(ps.stats)
             js = json.dumps(self.root, indent=4)
             requests.post('http://localhost:19876', data=js)
-        #
-        # self.pr = None
-        pprint(self.root)
 
     def _profile(self, frame, event, arg):
         if event in ['call', 'c_call']:
+            self.call += 1
+
             current = self.stack.pop()
             child = {
                 'func': get_name(event, frame, arg),
                 'line': frame.f_code.co_firstlineno,
                 'file': frame.f_code.co_filename,
                 'children': [],
-                'start': timeit.default_timer(),
             }
             current['children'].append(child)
             self.stack.append(current)
             self.stack.append(child)
+            child['start'] = timeit.default_timer()
 
-        if event in ['return', 'c_return']:
+        if event in ['return', 'c_return', 'c_exception']:
+            self.ret += 1
+            end = timeit.default_timer()
             if len(self.stack) > 1:
                 current = self.stack.pop()
-                current['end'] = timeit.default_timer()
+                current['end'] = end
                 current['total'] = current['end'] - current['start']
                 current['self'] = current['total'] - sum([child['total'] for child in current['children']])
 
