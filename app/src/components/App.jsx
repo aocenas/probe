@@ -42,6 +42,7 @@ class App extends React.Component {
         type: 'top-down',
         files: [],
         settingsOpen: false,
+        flameWidth: 100,
     };
 
     componentDidMount() {
@@ -169,7 +170,30 @@ class App extends React.Component {
                 {noData
                     ? <NonIdealState title="No data yet" visual="flows" />
                     : <div className="content-wrapper">
-                          <Flame tree={tree} />
+                          <div className="pt-button-group">
+                              <button
+                                  type="button"
+                                  className="pt-button pt-icon-minus"
+                                  onClick={() =>
+                                      this.setState({
+                                          flameWidth: this.state.flameWidth / 2,
+                                      })}
+                              />
+                              <button
+                                  type="button"
+                                  className="pt-button pt-icon-plus"
+                                  onClick={() =>
+                                      this.setState({
+                                          flameWidth: this.state.flameWidth * 2,
+                                      })}
+                              />
+                          </div>
+                          <div className="flame-wrapper">
+                              <Flame
+                                  tree={tree}
+                                  style={{ width: `${this.state.flameWidth}%` }}
+                              />
+                          </div>
                           <div className="tree-wrapper">
                               <Tree
                                   itemKeys={Object.keys(items)}

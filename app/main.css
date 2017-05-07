@@ -1,3 +1,22 @@
+html {
+    height: 100vh;
+}
+
+body {
+    overflow: hidden;
+    height: 100%;
+}
+
+#app-root {
+    height: 100%;
+}
+
+.app {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
 .app > .header {
     padding-bottom: 10px;
     border-bottom: 1px solid lightgray;
@@ -7,11 +26,13 @@
 }
 
 .app > .content-wrapper {
-    margin-top: 30px;
     font-size: 12px;
     width: 100%;
     overflow: hidden;
     padding: 10px;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
 }
 
 .app > .content-wrapper > .tree-wrapper {
@@ -19,6 +40,7 @@
     overflow: auto;
     margin-top: 30px;
     padding-bottom: 20px;
+    flex: 1;
 }
 
 .tree {
@@ -101,7 +123,14 @@
     font-size: 11px;
 }
 
-.flame {}
+.flame-wrapper {
+    overflow: auto;
+    transform: translateZ(0);
+    height: 200px;
+}
+
+.flame {
+}
 
 .flame .level {
     width: 100%;
@@ -115,6 +144,7 @@
     border-radius: 4px;
     height: 25px;
     overflow: hidden;
+    border: 1px solid white;
 }
 
 .flame .item .pt-popover-target {

@@ -4,7 +4,7 @@ const _ = require('lodash');
 
 class Flame extends React.Component {
     render() {
-        const { tree } = this.props;
+        const { tree, style } = this.props;
         let levels = [];
         let queue = [tree];
         let diff = tree.end - tree.start;
@@ -19,7 +19,7 @@ class Flame extends React.Component {
         levels = levels.slice(1);
 
         return (
-            <div className="flame">
+            <div className="flame" style={style}>
                 {levels.map((level, index) => (
                     <div
                         key={index}
