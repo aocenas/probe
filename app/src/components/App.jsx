@@ -6,26 +6,7 @@ const { NonIdealState, Button } = require('@blueprintjs/core');
 const Tree = require('./Tree');
 const Flame = require('./Flame');
 const Settings = require('./Settings');
-const {
-    toGraph,
-    addStats,
-    getRoots,
-    processCallTree,
-} = require('../graphUtils');
-
-const parseData = (data: Object): [Object[], Object[]] => {
-    toGraph(data);
-    const roots = getRoots(data);
-    const programTotal = roots
-        .map(node => node.total)
-        .reduce((acc, time) => acc + time, 0);
-
-    addStats(data, programTotal);
-
-    const topDown = roots;
-    const bottomUp = Object.values(data);
-    return [topDown, bottomUp];
-};
+const { processCallTree } = require('../graphUtils');
 
 type State = {
     type: 'top-down' | 'bottom-up',

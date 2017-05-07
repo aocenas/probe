@@ -1,30 +1,5 @@
 const _ = require('lodash');
 
-const toGraph = (nodes: Object) => {
-    Object.keys(nodes)
-        .map(key => {
-            const node = nodes[key];
-            node.key = key;
-            return node;
-        })
-        .filter(node => node.callers && Object.keys(node.callers).length)
-        .forEach(node => {
-            Object.keys(node.callers).forEach(callerKey => {
-                nodes[callerKey].children = nodes[callerKey].children || [];
-                nodes[callerKey].children.push(node);
-                node.parents = node.parents || [];
-                node.parents.push(nodes[callerKey]);
-            });
-            delete node.callers;
-        });
-};
-
-const getRoots = (items: Object): Object[] => {
-    return Object.values(graph).filter(
-        node => !(node.parents && node.parents.length)
-    );
-};
-
 const addStats = (graph: Object, programTotal) => {
     Object.values(graph).forEach(node => {
         node.selfPerCall = node.self / node.calls;
@@ -76,8 +51,5 @@ const processCallTree = (tree) => {
 };
 
 module.exports = {
-    toGraph,
-    getRoots,
-    addStats,
     processCallTree,
 };
