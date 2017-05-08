@@ -9,7 +9,7 @@ const Settings = require('./Settings');
 const { processCallTree } = require('../graphUtils');
 
 type State = {
-    type: 'top-down' | 'bottom-up',
+    type: 'top-down' | 'bottom-up' | 'flame',
     files: string[],
     currentFile?: string,
     topDown?: Object[],
@@ -68,19 +68,7 @@ class App extends React.Component {
     }
 
     render() {
-        const {
-            type,
-            currentFile,
-            files,
-            settingsOpen,
-            settings,
-            tree,
-        } = this.state;
-        const items = type === 'top-down'
-            ? this.state.topDown
-            : this.state.bottomUp;
-
-        const noData = !this.state.topDown;
+        const { settingsOpen, settings } = this.state;
 
         return (
             <div className="app">
@@ -99,45 +87,8 @@ class App extends React.Component {
                     />}
                 <div className="header">
                     <div className="left-group">
-                        <div className="pt-select pt-minimal">
-                            <select
-                                onChange={event =>
-                                    this.setState({ type: event.target.value })}
-                                value={type}
-                                disabled={noData}
-                            >
-                                <option value="top-down">
-                                    Tree (top down)
-                                </option>
-                                <option value="bottom-up">
-                                    Heavy (bottom up)
-                                </option>
-                            </select>
-                        </div>
-                        {!noData &&
-                            <div className="pt-select pt-minimal">
-                                <select
-                                    onChange={event => {
-                                        this.setState({
-                                            currentFile: event.target.value,
-                                        });
-                                        ipcRenderer.send(
-                                            'request-data',
-                                            event.target.value
-                                        );
-                                    }}
-                                    value={currentFile}
-                                    disabled={noData}
-                                >
-                                    {files.map(file => {
-                                        return (
-                                            <option key={file} value={file}>
-                                                {parseDateFromFileName(file)}
-                                            </option>
-                                        );
-                                    })}
-                                </select>
-                            </div>}
+                        {this.typeSelect()}
+                        {this.dataSelect()}
                     </div>
                     {settings &&
                         <Button
@@ -148,44 +99,111 @@ class App extends React.Component {
                         />}
                 </div>
 
-                {noData
-                    ? <NonIdealState title="No data yet" visual="flows" />
-                    : <div className="content-wrapper">
-                          <div className="pt-button-group">
-                              <button
-                                  type="button"
-                                  className="pt-button pt-icon-minus"
-                                  onClick={() =>
-                                      this.setState({
-                                          flameWidth: this.state.flameWidth / 2,
-                                      })}
-                              />
-                              <button
-                                  type="button"
-                                  className="pt-button pt-icon-plus"
-                                  onClick={() =>
-                                      this.setState({
-                                          flameWidth: this.state.flameWidth * 2,
-                                      })}
-                              />
-                          </div>
-                          <div className="flame-wrapper">
-                              <Flame
-                                  tree={tree}
-                                  style={{ width: `${this.state.flameWidth}%` }}
-                              />
-                          </div>
-                          <div className="tree-wrapper">
-                              <Tree
-                                  itemKeys={Object.keys(items)}
-                                  allItems={this.state.bottomUp}
-                                  type={type}
-                                  dataId={currentFile}
-                              />
-                          </div>
-                      </div>}
+                {this.showContent()}
+
             </div>
         );
+    }
+
+    dataSelect() {
+        const { topDown, currentFile, files } = this.state;
+        const noData = !topDown;
+        if (!noData) {
+            return null;
+        }
+        return (
+            <div className="pt-select pt-minimal">
+                <select
+                    onChange={event => {
+                        this.setState({
+                            currentFile: event.target.value,
+                        });
+                        ipcRenderer.send('request-data', event.target.value);
+                    }}
+                    value={currentFile}
+                    disabled={noData}
+                >
+                    {files.map(file => {
+                        return (
+                            <option key={file} value={file}>
+                                {parseDateFromFileName(file)}
+                            </option>
+                        );
+                    })}
+                </select>
+            </div>
+        );
+    }
+
+    typeSelect() {
+        const { type, topDown } = this.state;
+        const noData = !topDown;
+        return (
+            <div className="pt-select pt-minimal">
+                <select
+                    onChange={event =>
+                        this.setState({ type: event.target.value })}
+                    value={type}
+                    disabled={noData}
+                >
+                    <option value="top-down">
+                        Tree (top down)
+                    </option>
+                    <option value="bottom-up">
+                        Heavy (bottom up)
+                    </option>
+                    <option value="flame">
+                        Flame graph
+                    </option>
+                </select>
+            </div>
+        );
+    }
+
+    showContent() {
+        const {
+            flameWidth,
+            type,
+            topDown,
+            bottomUp,
+            currentFile,
+            tree,
+        } = this.state;
+        const noData = !topDown;
+
+        if (noData) {
+            return <NonIdealState title="No data yet" visual="flows" />;
+        } else {
+            let content;
+            if (type === 'flame') {
+                content = (
+                    <div className="flame-wrapper">
+                        <Flame
+                            tree={tree}
+                            style={{ width: `${flameWidth}%` }}
+                        />
+                    </div>
+                );
+            } else {
+                const items = type === 'top-down' ? topDown : bottomUp;
+                content = (
+                    <div className="tree-wrapper">
+                        <Tree
+                            itemKeys={Object.keys(items)}
+                            allItems={bottomUp}
+                            type={type}
+                            dataId={currentFile}
+                        />
+                    </div>
+                );
+            }
+
+            return (
+                <div className="content-wrapper">
+                    {content}
+                </div>
+            );
+        }
     }
 }
 
