@@ -42,7 +42,8 @@ class Flame extends React.Component {
             const filtered = descendants.filter(d => {
                 // filter data too small to show or not visible
                 return (
-                    scaleX(d.x1) - scaleX(d.x0) > 0.3
+                    scaleX(d.x1) - scaleX(d.x0) > 0.3 &&
+                    scaleX(d.x0) < w && scaleX(d.x1) > 0
                 );
             });
             let g = svg.selectAll('g').data(filtered, d => d.data.start);
