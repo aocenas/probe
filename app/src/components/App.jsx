@@ -20,7 +20,7 @@ type State = {
 
 class App extends React.Component {
     state: State = {
-        type: 'top-down',
+        type: 'flame',
         files: [],
         settingsOpen: false,
         flameWidth: 100,

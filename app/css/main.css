@@ -126,7 +126,6 @@ body {
 .flame-wrapper {
     overflow: auto;
     transform: translateZ(0);
-    height: 200px;
 }
 
 .flame {
@@ -159,4 +158,11 @@ body {
     text-overflow: ellipsis;
     overflow: hidden;
     cursor: pointer;
+}
+
+.flame-label {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding-left: 5px;
+    padding-top: 2px;
 }

@@ -18,6 +18,8 @@
     "babel-preset-react": "^6.24.1",
     "babel-register": "^6.24.1",
     "classnames": "^2.2.5",
+    "d3": "^4.8.0",
+    "d3-tip": "^0.7.1",
     "electron": "^1.6.2",
     "electron-devtools-installer": "^2.2.0",
     "eslint": "^3.19.0",
