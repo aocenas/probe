@@ -6,7 +6,6 @@ const tip = require('d3-tip');
 // const flameGraph = require('../vendor/d3.flameGraph');
 
 d3.tip = tip;
-const color = d3.scaleOrdinal(d3.schemeCategory20);
 
 class Flame extends React.Component {
     static propTypes = {
@@ -36,37 +35,43 @@ class Flame extends React.Component {
 
         let svg = d3.select('svg.flame').attr('width', w).attr('height', h);
 
-        const colorSelected = d3.color(`hsl(100,100%,55.3%)`);
-        const colorDefault = d3.color(`hsl(40,100%,55.3%)`);
+        const colorSelected = d3.color(`#FF4136`);
+        const colorDefault = d3.color(`#ffcea4`);
+        // const colorFaded = d3.color(`#ffe3cb`);
 
         const update = () => {
             const filtered = descendants.filter(d => {
                 // filter data too small to show or not visible
                 return (
                     scaleX(d.x1) - scaleX(d.x0) > 1 &&
-                    scaleX(d.x0) < w && scaleX(d.x1) > 0
+                    scaleX(d.x0) < w &&
+                    scaleX(d.x1) > 0
                 );
             });
-            let g = svg.selectAll('g').data(filtered, d => d.data.start);
+            let updateG = svg.selectAll('g').data(filtered, d => d.data.start);
 
-            g.exit().remove();
+            updateG.exit().remove();
 
-            let enterG = g.enter().append('svg:g');
+            let enterG = updateG.enter().append('svg:g');
 
-            enterG.append('svg:rect').attr('stroke', 'white');
+            enterG
+                .append('svg:rect')
+                .attr('stroke', 'white')
+                .attr('rx', 2)
+                .attr('ry', 2);
 
-            let updateEnter = enterG.merge(g);
+            let updateEnterG = enterG.merge(updateG);
 
-            updateEnter
+            updateEnterG
                 .filter(d => {
-                    return scaleX(d.x1) - scaleX(d.x0) < 15;
+                    return scaleX(d.x1) - scaleX(d.x0) < 20;
                 })
                 .select('foreignObject')
                 .remove();
 
-            updateEnter
+            updateEnterG
                 .filter(d => {
-                    return scaleX(d.x1) - scaleX(d.x0) >= 15;
+                    return scaleX(d.x1) - scaleX(d.x0) >= 20;
                 })
                 .select(function() {
                     if (this.childNodes.length === 1) {
@@ -82,32 +87,23 @@ class Flame extends React.Component {
                     return null;
                 });
 
-            g
-                .transition(trans)
-                .attr('transform', d => {
-                    if (selected && selected.ancestors().includes(d)) {
-                        return 'translate(0, ' + scaleY(d.y0) + ')';
-                    } else {
-                        return (
-                            'translate(' +
-                            scaleX(d.x0) +
-                            ',' +
-                            scaleY(d.y0) +
-                            ')'
-                        );
-                    }
-                });
+            updateG.transition(trans).attr('transform', d => {
+                if (selected && selected.ancestors().includes(d)) {
+                    return 'translate(0, ' + scaleY(d.y0) + ')';
+                } else {
+                    return (
+                        'translate(' + scaleX(d.x0) + ',' + scaleY(d.y0) + ')'
+                    );
+                }
+            });
 
-            g
-                .select('rect')
-                .transition(trans)
-                .attr('width', function(d) {
-                    if (selected && selected.ancestors().includes(d)) {
-                        return w;
-                    } else {
-                        return scaleX(d.x1) - scaleX(d.x0);
-                    }
-                });
+            updateG.select('rect').transition(trans).attr('width', function(d) {
+                if (selected && selected.ancestors().includes(d)) {
+                    return w;
+                } else {
+                    return scaleX(d.x1) - scaleX(d.x0);
+                }
+            });
 
             enterG
                 .attr('transform', d => {
@@ -156,7 +152,7 @@ class Flame extends React.Component {
                     }
                 });
 
-            updateEnter
+            updateEnterG
                 .on('click', d => {
                     selected = d;
                     scaleXPrev = scaleX;
@@ -165,6 +161,21 @@ class Flame extends React.Component {
                         .domain([d.x0, d.x1])
                         .range([0, w]);
                     update();
+                })
+                .on('mouseover', function(d) {
+                    d3
+                        .select(this)
+                        .select('rect')
+                        .attr('fill', colorDefault.darker(0.3));
+                })
+                .on('mouseout', function(d) {
+                    d3.select(this).select('rect').attr('fill', d => {
+                        if (d === selected) {
+                            return colorSelected;
+                        } else {
+                            return colorDefault;
+                        }
+                    });
                 })
                 .select('rect')
                 .attr('height', function(d) {
@@ -181,7 +192,7 @@ class Flame extends React.Component {
                     return scaleX(d.x1) - scaleX(d.x0) > 2 ? 2 : 1;
                 });
 
-            updateEnter
+            updateEnterG
                 .select('foreignObject')
                 // .transition(trans)
                 .attr('width', function(d) {
@@ -195,7 +206,7 @@ class Flame extends React.Component {
                     return scaleY(d.y1 - d.y0);
                 });
 
-            updateEnter
+            updateEnterG
                 .select('foreignObject')
                 .select('div')
                 .attr('class', 'flame-label')

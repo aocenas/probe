@@ -164,5 +164,6 @@ body {
     overflow: hidden;
     text-overflow: ellipsis;
     padding-left: 5px;
+    padding-right: 5px;
     padding-top: 2px;
 }
