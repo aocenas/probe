@@ -29,6 +29,7 @@ class Flame extends React.Component {
         const w = 700;
         const h = height * 20;
         let scaleX = d3.scaleLinear().range([0, w]);
+        let scaleXPrev = scaleX;
         let scaleY = d3.scaleLinear().range([0, h]);
         let selected = null;
         const trans = d3.transition().duration(250).ease(d3.easeCubicInOut);
@@ -42,7 +43,7 @@ class Flame extends React.Component {
             const filtered = descendants.filter(d => {
                 // filter data too small to show or not visible
                 return (
-                    scaleX(d.x1) - scaleX(d.x0) > 0.3 &&
+                    scaleX(d.x1) - scaleX(d.x0) > 1 &&
                     scaleX(d.x0) < w && scaleX(d.x1) > 0
                 );
             });
@@ -115,6 +116,20 @@ class Flame extends React.Component {
                     } else {
                         return (
                             'translate(' +
+                            scaleXPrev(d.x0) +
+                            ',' +
+                            scaleY(d.y0) +
+                            ')'
+                        );
+                    }
+                })
+                .transition(trans)
+                .attr('transform', d => {
+                    if (selected && selected.ancestors().includes(d)) {
+                        return 'translate(0, ' + scaleY(d.y0) + ')';
+                    } else {
+                        return (
+                            'translate(' +
                             scaleX(d.x0) +
                             ',' +
                             scaleY(d.y0) +
@@ -129,6 +144,14 @@ class Flame extends React.Component {
                     if (selected && selected.ancestors().includes(d)) {
                         return w;
                     } else {
+                        return scaleXPrev(d.x1) - scaleXPrev(d.x0);
+                    }
+                })
+                .transition(trans)
+                .attr('width', function(d) {
+                    if (selected && selected.ancestors().includes(d)) {
+                        return w;
+                    } else {
                         return scaleX(d.x1) - scaleX(d.x0);
                     }
                 });
@@ -136,6 +159,7 @@ class Flame extends React.Component {
             updateEnter
                 .on('click', d => {
                     selected = d;
+                    scaleXPrev = scaleX;
                     scaleX = d3
                         .scaleLinear()
                         .domain([d.x0, d.x1])
