@@ -106,9 +106,8 @@ class App extends React.Component {
     }
 
     dataSelect() {
-        const { topDown, currentFile, files } = this.state;
-        const noData = !topDown;
-        if (!noData) {
+        const { currentFile, files } = this.state;
+        if (!files) {
             return null;
         }
         return (
@@ -121,7 +120,7 @@ class App extends React.Component {
                         ipcRenderer.send('request-data', event.target.value);
                     }}
                     value={currentFile}
-                    disabled={noData}
+                    disabled={!files}
                 >
                     {files.map(file => {
                         return (
