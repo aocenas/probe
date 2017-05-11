@@ -64,14 +64,17 @@ const flame = tree => {
             .remove();
 
         // Add labels for groups which have become big enough
-        updateEnterG.filter(bigEnoughForLabel(scaleX)).select(function() {
-            if (this.childNodes.length === 1) {
+        updateEnterG
+            .filter(function(d) {
                 // there is only rect element, which means it does not have
                 // label yet
-                return this.appendChild(makeLabelObject());
-            }
-            return null;
-        });
+                return (
+                    bigEnoughForLabel(scaleX)(d) && this.childNodes.length === 1
+                );
+            })
+            .each(function() {
+                appendLabel(scaleY)(this);
+            });
 
         // Move updated groups to right place with animation
         updateG.transition(trans).attr('transform', d => {
@@ -125,13 +128,13 @@ const flame = tree => {
                 scaleX = d3.scaleLinear().domain([d.x0, d.x1]).range([0, w]);
                 update();
             })
-            .on('mouseover', function (d) {
+            .on('mouseover', function(d) {
                 d3
                     .select(this)
                     .select('rect')
                     .attr('fill', colorDefault.darker(0.3));
             })
-            .on('mouseout', function (d) {
+            .on('mouseout', function(d) {
                 d3.select(this).select('rect').attr('fill', d => {
                     if (d === selected) {
                         return colorSelected;
@@ -163,30 +166,10 @@ const flame = tree => {
                 } else {
                     return scaleX(d.x1) - scaleX(d.x0);
                 }
-            })
-            .attr('height', function(d) {
-                return scaleY(d.y1 - d.y0);
-            });
-
-        updateEnterG
-            .select('foreignObject')
-            .select('div')
-            .attr('class', 'flame-label')
-            .text(function(d) {
-                return d.data.func || 'program';
             });
     };
 
     return update;
-};
-
-const makeLabelObject = () => {
-    let foreignObject = document.createElementNS(
-        'http://www.w3.org/2000/svg',
-        'foreignObject'
-    );
-    foreignObject.appendChild(document.createElement('div'));
-    return foreignObject;
 };
 
 const bigEnoughForLabel = scaleX => d => {
@@ -195,5 +178,18 @@ const bigEnoughForLabel = scaleX => d => {
 
 const translate = (x, y) => `translate(${x}, ${y})`;
 
+const appendLabel = scaleY => el => {
+    d3
+        .select(el)
+        .append('foreignObject')
+        .attr('height', d => {
+            return scaleY(d.y1 - d.y0);
+        })
+        .append('xhtml:div')
+        .attr('class', 'flame-label')
+        .text(function(d) {
+            return d.data.func || 'program';
+        });
+};
 
 module.exports = flame;
