@@ -1,4 +1,3 @@
-/* global document */
 const d3 = require('d3');
 
 const colorSelected = d3.color(`#FF4136`);
@@ -28,6 +27,25 @@ const flame = tree => {
     const trans = d3.transition().duration(250).ease(d3.easeCubicInOut);
 
     let svg = d3.select('svg.flame').attr('width', w).attr('height', h);
+    let tooltip = null;
+
+    const getItemWidth = d => {
+        if (selected && selected.ancestors().includes(d)) {
+            // if current group is ancestor of selected group it will be
+            // 100% wide
+            return w;
+        } else {
+            return scaleX(d.x1) - scaleX(d.x0);
+        }
+    };
+
+    const getColor = d => {
+        if (d === selected) {
+            return colorSelected;
+        } else {
+            return colorDefault;
+        }
+    };
 
     const update = () => {
         const filtered = descendants.filter(d => {
@@ -81,22 +99,14 @@ const flame = tree => {
             if (selected && selected.ancestors().includes(d)) {
                 // if current group is ancestor of selected group it will be
                 // 100% wide so start at left border
-                return 'translate(0, ' + scaleY(d.y0) + ')';
+                return translate(0, scaleY(d.y0));
             } else {
-                return 'translate(' + scaleX(d.x0) + ',' + scaleY(d.y0) + ')';
+                return translate(scaleX(d.x0), scaleY(d.y0));
             }
         });
 
         // Resize updated rects with animation
-        updateG.select('rect').transition(trans).attr('width', function(d) {
-            if (selected && selected.ancestors().includes(d)) {
-                // if current group is ancestor of selected group it will be
-                // 100% wide
-                return w;
-            } else {
-                return scaleX(d.x1) - scaleX(d.x0);
-            }
-        });
+        updateG.select('rect').transition(trans).attr('width', getItemWidth);
 
         // New groups which are added when they come to view after new groups
         // is selected. They are added first in place where they would be
@@ -133,26 +143,19 @@ const flame = tree => {
                     .select(this)
                     .select('rect')
                     .attr('fill', colorDefault.darker(0.3));
+
+                tooltip = makeTooltip(this, d);
+
             })
             .on('mouseout', function(d) {
-                d3.select(this).select('rect').attr('fill', d => {
-                    if (d === selected) {
-                        return colorSelected;
-                    } else {
-                        return colorDefault;
-                    }
-                });
+                // restore normal colors
+                d3.select(this).select('rect').attr('fill', getColor);
+                tooltip.remove();
             });
 
         updateEnterG
             .select('rect')
-            .attr('fill', function(d) {
-                if (d === selected) {
-                    return colorSelected;
-                } else {
-                    return colorDefault;
-                }
-            })
+            .attr('fill', getColor)
             .attr('stroke-width', d => {
                 return scaleX(d.x1) - scaleX(d.x0) > 2 ? 2 : 1;
             });
@@ -160,13 +163,7 @@ const flame = tree => {
         updateEnterG
             .select('foreignObject')
             .transition(trans)
-            .attr('width', function(d) {
-                if (selected && selected.ancestors().includes(d)) {
-                    return w;
-                } else {
-                    return scaleX(d.x1) - scaleX(d.x0);
-                }
-            });
+            .attr('width', getItemWidth);
     };
 
     return update;
@@ -190,6 +187,36 @@ const appendLabel = scaleY => el => {
         .text(function(d) {
             return d.data.func || 'program';
         });
+};
+
+const makeTooltip = (forEl, d) => {
+    const groupPosition = d3
+        .select(forEl)
+        .node()
+        .getBoundingClientRect();
+
+    const tooltip = d3
+        .select('body')
+        .append('div')
+        .attr('class', 'flame-tooltip')
+        .text(d.data.func);
+
+    const tooltipPositionData = tooltip
+        .node()
+        .getBoundingClientRect();
+
+    const tooltipLeft =
+        groupPosition.left +
+        groupPosition.width / 2 -
+        tooltipPositionData.width / 2;
+    const tooltipTop =
+        groupPosition.top - (tooltipPositionData.height + 10);
+
+    tooltip
+        .style('top', tooltipTop + 'px')
+        .style('left', tooltipLeft + 'px');
+
+    return tooltip;
 };
 
 module.exports = flame;

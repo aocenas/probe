@@ -167,3 +167,12 @@ body {
     padding-right: 5px;
     padding-top: 2px;
 }
+
+.flame-tooltip {
+    padding: 5px;
+    background-color: #999;
+    color: white;
+    border-radius: 4px;
+    box-shadow: 0 0 9px 3px rgba(0, 0, 0, 0.2);
+    position: absolute;
+}
