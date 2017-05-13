@@ -133,7 +133,24 @@ class FlameInternal extends React.PureComponent {
                     return null;
                 }}
                 willEnter={style => {
-                    return this.getItemStyle(scaleXPrev)(style.data);
+                    const prevStyle = this.getItemStyle(scaleXPrev)(style.data);
+                    const newStyle = this.getItemStyle(scaleX)(style.data);
+                    const comesFromLeft = prevStyle.left < 0;
+                    const comesFromRight = prevStyle.left > this._w;
+                    if (!(comesFromLeft || comesFromRight)) {
+                        // if it should have been on screen but was too small
+                        // interpolate properly
+                        return prevStyle;
+                    } else {
+                        // otherwise move it just from outside of the flame
+                        // graph with final width
+                        return {
+                            left: comesFromLeft
+                                ? newStyle.left - this._w
+                                : this._w + newStyle.left,
+                            width: newStyle.width,
+                        };
+                    }
                 }}
             >
                 {interpolatedStyles => {
