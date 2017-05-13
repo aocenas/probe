@@ -164,6 +164,11 @@ body {
    cursor: pointer;
 }
 
+.flame-item:hover rect {
+    cursor: pointer;
+    fill: #ffe3cb;
+}
+
 .flame-label {
     overflow: hidden;
     text-overflow: ellipsis;
@@ -173,10 +178,10 @@ body {
 }
 
 .flame-tooltip {
+    position: absolute;
     padding: 5px;
     background-color: #999;
     color: white;
     border-radius: 4px;
     box-shadow: 0 0 9px 3px rgba(0, 0, 0, 0.2);
-    position: absolute;
 }
