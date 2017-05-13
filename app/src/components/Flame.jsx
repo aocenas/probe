@@ -3,9 +3,9 @@ const _ = require('lodash');
 const React = require('react');
 const cx = require('classnames');
 const PT = require('prop-types');
-const flame = require('./flame.d3');
 const d3 = require('d3');
 const { TransitionMotion, spring } = require('react-motion');
+const { format } = require('../utils/format');
 
 const frameHeight = 25;
 
@@ -39,7 +39,7 @@ class Flame extends React.PureComponent {
     }
 
     render() {
-        const { showTooltip, tooltipText, tooltipPosition, width } = this.state;
+        const { showTooltip, tooltipData, tooltipPosition, width } = this.state;
         const { tree } = this.props;
         return (
             <div className="flame" ref={el => this._el = el}>
@@ -87,7 +87,23 @@ class Flame extends React.PureComponent {
                             }
                         }}
                     >
-                        {tooltipText}
+                        <p>
+                            <span className="tooltip-main">
+                                {tooltipData.func || 'program'}
+                            </span>
+                            <br />
+                            <span className="tooltip-secondary">
+                                {tooltipData.file}#{tooltipData.line}
+                            </span>
+                        </p>
+                        <div className="tooltip-label-wrapper">
+                            <div className="tooltip-label">self:</div>
+                            <div className="tooltip-value">{format(tooltipData.self)}</div>
+                        </div>
+                        <div className="tooltip-label-wrapper">
+                            <div className="tooltip-label">total:</div>
+                            <div className="tooltip-value">{format(tooltipData.total)}</div>
+                        </div>
                     </div>}
                 <FlameInternal
                     tree={tree}
@@ -99,10 +115,10 @@ class Flame extends React.PureComponent {
         );
     }
 
-    showTooltip = (position, text) => {
+    showTooltip = (position, itemData) => {
         this.setState({
             showTooltip: true,
-            tooltipText: text,
+            tooltipData: itemData,
             tooltipTarget: position,
             tooltipPosition: {},
         });
@@ -262,14 +278,14 @@ class FlameInternal extends React.PureComponent {
                                                     top: scaleY(item.y0),
                                                     height: itemHeight,
                                                 },
-                                                item.data.func || 'program'
+                                                item.data
                                             )}
                                     >
                                         <rect
                                             stroke="white"
                                             height={itemHeight}
-                                            rx="2"
-                                            ry="2"
+                                            rx="4"
+                                            ry="4"
                                             strokeWidth={3}
                                             width={style.width}
                                         />

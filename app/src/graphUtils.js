@@ -14,6 +14,9 @@ const addStats = (graph: Object, programTotal) => {
 const processCallTree = (tree) => {
     let queue = [...tree.children];
     const programTotal = queue.reduce((sum, item) => sum + item.total, 0);
+    tree.total = programTotal;
+    tree.self = 0;
+
     const items = {};
     const roots = {};
 

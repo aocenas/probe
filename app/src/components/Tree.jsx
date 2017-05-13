@@ -1,6 +1,7 @@
 const _ = require('lodash');
 const React = require('react');
 const PT = require('prop-types');
+const { format, formatRelative } = require('../utils/format');
 
 const sortFunctions = {
     self: (order: number) => (a, b) => (b.self - a.self) * order,
@@ -142,10 +143,10 @@ class TreeNode extends React.Component {
             _.pick(nextProps, propsKeys),
             _.pick(this.props, propsKeys)
         ) &&
-        _.isEqual(
-            _.pick(nextState, stateKeys),
-            _.pick(this.state, stateKeys)
-        ));
+            _.isEqual(
+                _.pick(nextState, stateKeys),
+                _.pick(this.state, stateKeys)
+            ));
     }
 
     render() {
@@ -244,20 +245,5 @@ class TreeNode extends React.Component {
         );
     }
 }
-
-const format = number => {
-    let ms;
-    if (number > 1) {
-        ms = Math.round(number * 1000);
-    } else {
-        ms = Math.round(number * 10000) / 10;
-    }
-    return `${ms.toLocaleString()}ms`;
-};
-
-const formatRelative = number => {
-    let percent = Math.round(number * 1000) / 10;
-    return `${percent}%`;
-};
 
 module.exports = Tree;
