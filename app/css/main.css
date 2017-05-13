@@ -160,6 +160,10 @@ body {
     cursor: pointer;
 }
 
+.flame-item {
+   cursor: pointer;
+}
+
 .flame-label {
     overflow: hidden;
     text-overflow: ellipsis;

@@ -60,7 +60,7 @@ const flame = tree => {
 
         updateG.exit().remove();
 
-        let enterG = updateG.enter().append('svg:g');
+        let enterG = updateG.enter().append('svg:g').attr('class', 'flame-item');
 
         enterG
             .append('svg:rect')
