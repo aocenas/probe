@@ -1,12 +1,13 @@
+/* global window */
 const _ = require('lodash');
 const React = require('react');
+const cx = require('classnames');
 const PT = require('prop-types');
 const flame = require('./flame.d3');
 const d3 = require('d3');
 const { TransitionMotion, spring } = require('react-motion');
 
-const colorSelected = d3.color(`#FF4136`);
-const colorDefault = d3.color(`#ffcea4`);
+const frameHeight = 25;
 
 class Flame extends React.PureComponent {
     static propTypes = {
@@ -17,8 +18,28 @@ class Flame extends React.PureComponent {
         showTooltip: false,
     };
 
+    onResize = () => {
+        this.timer && clearTimeout(this.timer);
+        this.timer = setTimeout(() => {
+            this.setState({
+                width: this._el.getBoundingClientRect().width,
+            });
+        }, 100);
+    };
+
+    componentDidMount() {
+        this.setState({
+            width: this._el.getBoundingClientRect().width,
+        });
+        window.addEventListener('resize', this.onResize);
+    }
+
+    componentWillUnmount() {
+        window.removeEventListener('resize', this.onResize);
+    }
+
     render() {
-        const { showTooltip, tooltipText, tooltipPosition } = this.state;
+        const { showTooltip, tooltipText, tooltipPosition, width } = this.state;
         const { tree } = this.props;
         return (
             <div className="flame" ref={el => this._el = el}>
@@ -28,6 +49,42 @@ class Flame extends React.PureComponent {
                         style={{
                             top: tooltipPosition.top,
                             left: tooltipPosition.left,
+                            maxWidth: this.state.width,
+                        }}
+                        ref={el => {
+                            if (
+                                el &&
+                                this.state.tooltipPosition.top === undefined
+                            ) {
+                                const { tooltipTarget, width } = this.state;
+                                const tooltipRect = el.getBoundingClientRect();
+
+                                const left = Math.max(
+                                    Math.min(
+                                        width - tooltipRect.width,
+                                        tooltipTarget.left +
+                                            tooltipTarget.width / 2 -
+                                            tooltipRect.width / 2
+                                    ),
+                                    0
+                                );
+
+                                const offset = 10;
+
+                                let top =
+                                    tooltipTarget.top -
+                                    (tooltipRect.height + offset);
+                                if (top < 0) {
+                                    top =
+                                        tooltipTarget.top +
+                                        tooltipTarget.height +
+                                        offset;
+                                }
+
+                                this.setState({
+                                    tooltipPosition: { left, top },
+                                });
+                            }
                         }}
                     >
                         {tooltipText}
@@ -36,19 +93,18 @@ class Flame extends React.PureComponent {
                     tree={tree}
                     onMouseOver={this.showTooltip}
                     onMouseOut={this.hideTooltip}
+                    width={width || 500}
                 />
             </div>
         );
     }
 
     showTooltip = (position, text) => {
-        const left = position.left + position.width / 2;
-        const top = position.top - 20;
-
         this.setState({
             showTooltip: true,
             tooltipText: text,
-            tooltipPosition: { left, top },
+            tooltipTarget: position,
+            tooltipPosition: {},
         });
     };
 
@@ -62,37 +118,46 @@ class Flame extends React.PureComponent {
 class FlameInternal extends React.PureComponent {
     static propTypes = {
         tree: PT.object.isRequired,
+        width: PT.number.isRequired,
         onMouseOver: PT.func.isRequired,
         onMouseOut: PT.func.isRequired,
     };
 
     constructor(props) {
         super(props);
-        const root = d3.hierarchy(props.tree);
+        this.state = this.getSetup(props);
+    }
+
+    componentWillReceiveProps(newProps) {
+        if (
+            newProps.tree !== this.props.tree ||
+            newProps.width !== this.props.width
+        ) {
+            this.setState(this.getSetup(newProps));
+        }
+    }
+
+    getSetup(newProps) {
+        const root = d3.hierarchy(newProps.tree);
         root.sum(d => {
             return d.self ? d.self : 0;
         });
         const partition = d3.partition();
-        this._descendants = partition(root).descendants();
+        const descendants = partition(root).descendants();
 
         // number of levels
-        const treeLevels = this._descendants[0].height;
+        const treeLevels = descendants[0].height;
 
-        const levelHeight = 20;
-        this._w = 700;
-        this._h = treeLevels * levelHeight;
+        const height = treeLevels * frameHeight;
 
-        this.state = {
-            scaleX: d3.scaleLinear().range([0, this._w]),
-            scaleY: d3.scaleLinear().range([0, this._h]),
-            scaleXPrev: d3.scaleLinear().range([0, this._w]),
+        return {
+            scaleX: d3.scaleLinear().range([0, newProps.width]),
+            scaleY: d3.scaleLinear().range([0, height]),
+            scaleXPrev: d3.scaleLinear().range([0, newProps.width]),
             selected: null,
+            height: height,
+            descendants,
         };
-
-        // const trans = d3.transition().duration(250).ease(d3.easeCubicInOut);
-        //
-        // let svg = d3.select('svg.flame').attr('width', w).attr('height', h);
-        // let tooltip = null;
     }
 
     componentDidMount() {
@@ -102,17 +167,20 @@ class FlameInternal extends React.PureComponent {
 
     componentDidUpdate() {}
 
-    // render() {
-    //     return <svg className="flame" ref={el => this._el = el}/>;
-    // }
-
     render() {
-        const { scaleX, scaleY, scaleXPrev } = this.state;
-        const { onMouseOut, onMouseOver } = this.props;
-        const allItems = this._descendants.filter(d => {
+        const {
+            scaleX,
+            scaleY,
+            scaleXPrev,
+            descendants,
+            height,
+            selected,
+        } = this.state;
+        const { onMouseOut, onMouseOver, width } = this.props;
+        const allItems = descendants.filter(d => {
             return (
                 scaleX(d.x1) - scaleX(d.x0) > 2 &&
-                scaleX(d.x0) < this._w &&
+                scaleX(d.x0) < width &&
                 scaleX(d.x1) > 0
             );
         });
@@ -136,7 +204,7 @@ class FlameInternal extends React.PureComponent {
                     const prevStyle = this.getItemStyle(scaleXPrev)(style.data);
                     const newStyle = this.getItemStyle(scaleX)(style.data);
                     const comesFromLeft = prevStyle.left < 0;
-                    const comesFromRight = prevStyle.left > this._w;
+                    const comesFromRight = prevStyle.left > width;
                     if (!(comesFromLeft || comesFromRight)) {
                         // if it should have been on screen but was too small
                         // interpolate properly
@@ -146,8 +214,8 @@ class FlameInternal extends React.PureComponent {
                         // graph with final width
                         return {
                             left: comesFromLeft
-                                ? newStyle.left - this._w
-                                : this._w + newStyle.left,
+                                ? newStyle.left - width
+                                : width + newStyle.left,
                             width: newStyle.width,
                         };
                     }
@@ -158,17 +226,20 @@ class FlameInternal extends React.PureComponent {
                         <svg
                             className="flame-internal"
                             ref={el => this._el = el}
-                            width={this._w}
-                            height={this._h}
+                            width={width}
+                            height={height}
                         >
                             {interpolatedStyles.map(style => {
                                 const item = style.data;
                                 style = style.style;
+                                const itemHeight = scaleY(item.y1 - item.y0);
                                 return (
                                     <g
                                         opacity={style.opacity}
                                         key={item.data.start}
-                                        className="flame-item"
+                                        className={cx('flame-item', {
+                                            selected: item === selected,
+                                        })}
                                         transform={translate(
                                             style.left,
                                             scaleY(item.y0)
@@ -180,7 +251,7 @@ class FlameInternal extends React.PureComponent {
                                                 scaleX: d3
                                                     .scaleLinear()
                                                     .domain([item.x0, item.x1])
-                                                    .range([0, this._w]),
+                                                    .range([0, width]),
                                             })}
                                         onMouseOut={onMouseOut}
                                         onMouseOver={e =>
@@ -189,24 +260,22 @@ class FlameInternal extends React.PureComponent {
                                                     left: style.left,
                                                     width: style.width,
                                                     top: scaleY(item.y0),
+                                                    height: itemHeight,
                                                 },
                                                 item.data.func || 'program'
                                             )}
                                     >
                                         <rect
                                             stroke="white"
-                                            height={scaleY(item.y1 - item.y0)}
+                                            height={itemHeight}
                                             rx="2"
                                             ry="2"
-                                            fill={this.getColor(item)}
-                                            strokeWidth={2}
+                                            strokeWidth={3}
                                             width={style.width}
                                         />
                                         {this.bigEnoughForLabel(item)
                                             ? <foreignObject
-                                                  height={scaleY(
-                                                      item.y1 - item.y0
-                                                  )}
+                                                  height={itemHeight}
                                                   width={style.width}
                                               >
                                                   <div className="flame-label">
@@ -235,14 +304,6 @@ class FlameInternal extends React.PureComponent {
         };
     };
 
-    getColor = d => {
-        if (d === this.state.selected) {
-            return colorSelected;
-        } else {
-            return colorDefault;
-        }
-    };
-
     bigEnoughForLabel = d => {
         const { scaleX } = this.state;
         return scaleX(d.x1) - scaleX(d.x0) >= 20;
@@ -250,10 +311,11 @@ class FlameInternal extends React.PureComponent {
 
     getItemWidth = scaleX => d => {
         const { selected, scaleX } = this.state;
+        const { width } = this.props;
         if (selected && selected.ancestors().includes(d)) {
             // if current group is ancestor of selected group it will be
             // 100% wide
-            return this._w;
+            return width;
         } else {
             return scaleX(d.x1) - scaleX(d.x0);
         }

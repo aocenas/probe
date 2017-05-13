@@ -22,7 +22,7 @@ body {
     border-bottom: 1px solid lightgray;
     display: flex;
     justify-content: space-between;
-    margin-bottom: 30px;
+    margin-bottom: 10px;
 }
 
 .app > .content-wrapper {
@@ -38,7 +38,6 @@ body {
 .app > .content-wrapper > .tree-wrapper {
     width: 100%;
     overflow: auto;
-    margin-top: 30px;
     padding-bottom: 20px;
     flex: 1;
 }
@@ -124,8 +123,7 @@ body {
 }
 
 .flame-wrapper {
-    overflow: auto;
-    transform: translateZ(0);
+    position: relative;
 }
 
 .flame {
@@ -164,23 +162,36 @@ body {
    cursor: pointer;
 }
 
+.flame-item rect {
+    fill: rgba(16, 22, 26, 0.2);
+}
+
+.flame-item.selected rect {
+    fill: #5c7080;
+}
+
+.flame-item.selected .flame-label {
+    color: white;
+}
+
 .flame-item:hover rect {
-    cursor: pointer;
-    fill: #ffe3cb;
+    fill: rgba(16, 22, 26, 0.3);
+}
+
+.flame-item.selected:hover rect {
+    fill: #4c5c69;
 }
 
 .flame-label {
     overflow: hidden;
     text-overflow: ellipsis;
-    padding-left: 5px;
-    padding-right: 5px;
-    padding-top: 2px;
+    padding: 5px;
 }
 
 .flame-tooltip {
     position: absolute;
     padding: 5px;
-    background-color: #999;
+    background-color: #394b59;
     color: white;
     border-radius: 4px;
     box-shadow: 0 0 9px 3px rgba(0, 0, 0, 0.2);
