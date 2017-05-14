@@ -1,5 +1,2 @@
-.python-version
-.idea
-py/dist
-py/performer.egg-info
-__pycache__
+build
+node_modules
