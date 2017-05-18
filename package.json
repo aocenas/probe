@@ -1,11 +1,13 @@
 {
-  "name": "PyPerf",
+  "name": "Probe",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "watch": "babel src -d build -w"
+    "watch": "babel src -d build -w",
+    "release": "electron-packager . --out=./release --package-manager=yarn",
+    "electron": "electron ."
   },
   "author": "",
   "license": "ISC",
@@ -21,10 +23,7 @@
     "classnames": "^2.2.5",
     "d3": "^4.8.0",
     "d3-tip": "^0.7.1",
-    "electron": "^1.6.2",
     "electron-devtools-installer": "^2.2.0",
-    "eslint": "^3.19.0",
-    "eslint-plugin-react": "^6.10.3",
     "lodash": "^4.17.4",
     "moment": "^2.18.1",
     "prop-types": "^15.5.8",
@@ -34,6 +33,10 @@
     "react-motion": "^0.5.0"
   },
   "devDependencies": {
+    "electron": "^1.6.2",
+    "electron-packager": "^8.7.0",
+    "eslint": "^3.19.0",
+    "eslint-plugin-react": "^6.10.3",
     "flow-bin": "^0.44.0",
     "prettier": "^1.1.0"
   }
