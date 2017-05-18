@@ -107,7 +107,7 @@ class App extends React.Component {
 
     dataSelect() {
         const { currentFile, files } = this.state;
-        if (!files) {
+        if (!files.length) {
             return null;
         }
         return (
