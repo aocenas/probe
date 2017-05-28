@@ -1,6 +1,12 @@
 const React = require('react');
 const PT = require('prop-types');
-const { Button, Dialog, Intent, NumericInput } = require('@blueprintjs/core');
+const {
+    Button,
+    Dialog,
+    Intent,
+    NumericInput,
+    Tooltip,
+} = require('@blueprintjs/core');
 
 class Settings extends React.Component {
     static propTypes = {
@@ -37,7 +43,11 @@ class Settings extends React.Component {
                     <div className="pt-dialog-body">
                         <div className="pt-form-group pt-inline">
                             <label className="pt-label" htmlFor="server-port">
-                                Port where PyPerf is listening for data
+                                Port
+                                {' '}
+                                <Tooltip content="Probe is listening on this port for data.">
+                                    <span className="pt-icon pt-icon-help" />
+                                </Tooltip>
                             </label>
                             <div className="pt-form-content">
                                 <NumericInput
