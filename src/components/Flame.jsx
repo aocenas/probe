@@ -195,9 +195,10 @@ class FlameInternal extends React.PureComponent {
         const { onMouseOut, onMouseOver, width } = this.props;
         const allItems = descendants.filter(d => {
             return (
-                scaleX(d.x1) - scaleX(d.x0) > 2 &&
-                scaleX(d.x0) < width &&
-                scaleX(d.x1) > 0
+                // filter smaller rects
+                scaleX(d.x1) - scaleX(d.x0) > 5 &&
+                // filter rects outside of the view
+                scaleX(d.x0) < width && scaleX(d.x1) > 0
             );
         });
         return (
