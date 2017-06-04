@@ -1,6 +1,9 @@
 # Probe
 Simple application, displaying different views of profiling data.
 
+![Flame Chart](https://raw.githubusercontent.com/aocenas/probe/master/assets/flame.png)
+![Top Down](https://raw.githubusercontent.com/aocenas/probe/master/assets/top_down.png)
+
 ### Install
 Download a latest release from https://github.com/aocenas/probe/releases. To get
 profiling data from you need a profiling agent. At this point only
