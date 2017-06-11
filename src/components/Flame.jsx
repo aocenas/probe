@@ -162,7 +162,7 @@ class FlameInternal extends React.PureComponent {
         const descendants = partition(root).descendants();
 
         // number of levels
-        const treeLevels = descendants[0].height;
+        const treeLevels = descendants[0].height + 1;
 
         const height = treeLevels * frameHeight;
 
