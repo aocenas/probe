@@ -33,18 +33,19 @@ class App extends React.Component {
 
     componentDidMount() {
         ipcRenderer.on('initial-data', (event, message) => {
-            if (message.files.length) {
+            if (message.tree) {
                 const { items, roots } = processCallTree(message.tree);
                 this.setState({
                     topDown: roots,
                     bottomUp: items,
-                    files: message.files,
                     tree: message.tree,
+                    currentFile: message.files.slice(-1)[0],
                 });
             }
             this.setState({
                 settings: message.settings,
                 dataDirPath: message.dataDirPath,
+                files: message.files || [],
             });
         });
         ipcRenderer.on('new-data', (event, message) => {
