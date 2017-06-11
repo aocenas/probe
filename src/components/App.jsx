@@ -1,3 +1,4 @@
+const path = require('path');
 const React = require('react');
 const moment = require('moment');
 const { ipcRenderer } = require('electron');
@@ -125,7 +126,7 @@ class App extends React.Component {
                     {files.map(file => {
                         return (
                             <option key={file} value={file}>
-                                {parseDateFromFileName(file)}
+                                {parseFileName(file)}
                             </option>
                         );
                     })}
@@ -206,13 +207,13 @@ class App extends React.Component {
     }
 }
 
-const parseDateFromFileName = (fileName: string): string => {
-    const matched = fileName.match(/^data_(.*)\.json$/);
-    if (matched) {
-        return moment(matched[1]).format('YYYY-MM-DD HH:mm:ss');
-    } else {
-        return fileName;
-    }
+const parseFileName = (fileName: string): string => {
+    const parts = path.basename(fileName, '.json').split('_');
+    const date = parts[1];
+    const name = parts[2];
+    const namePart = name ? ` [${name}]` : '';
+
+    return `${moment(date).format('YYYY-MM-DD HH:mm:ss')}${namePart}`;
 };
 
 module.exports = App;

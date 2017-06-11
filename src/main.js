@@ -94,8 +94,8 @@ const setupServer = (port) => {
         server.close();
     }
     server = createServer(port, newData => {
-        const dataParsed = JSON.parse(newData);
-        const fileName = storeData(dataParsed);
+        const dataParsed = JSON.parse(newData.data);
+        const fileName = storeData(dataParsed, newData.name);
         if (win) {
             win.webContents.send('new-data', {
                 tree: dataParsed,

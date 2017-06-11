@@ -1,6 +1,10 @@
 const http = require('http');
+const url = require('url');
 
-const createServer = (port: number, onData: (string) => void) => {
+type Data = { name: ?string, data: string };
+
+// prettier-ignore
+const createServer = (port: number, onData: (Data) => void) => {
     const server = http.createServer((req, res) => {
         let data = '';
         req.on('data', chunk => {
@@ -8,7 +12,8 @@ const createServer = (port: number, onData: (string) => void) => {
         });
 
         req.on('end', () => {
-            onData(data);
+            const { query } = url.parse(req.url, true);
+            onData({ name: query.name, data });
             res.writeHead(200, { 'Content-Type': 'text/plain' });
             res.end('ok');
         });
