@@ -1,4 +1,5 @@
 const React = require('react');
+const { shell } = require('electron');
 const PT = require('prop-types');
 const {
     Button,
@@ -14,6 +15,7 @@ class Settings extends React.Component {
         onClose: PT.func.isRequired,
         onSave: PT.func.isRequired,
         settings: PT.object.isRequired,
+        dataDirPath: PT.string.isRequired,
     };
 
     constructor(props) {
@@ -68,6 +70,13 @@ class Settings extends React.Component {
                         </div>
                     </div>
                     <div className="pt-dialog-footer">
+                        <Button
+                            text="Open data directory"
+                            onClick={() =>
+                                shell.showItemInFolder(
+                                    this.props.dataDirPath
+                                )}
+                        />
                         <div className="pt-dialog-footer-actions">
                             <Button
                                 text="Cancel"

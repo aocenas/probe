@@ -215,3 +215,11 @@ body {
     width: 100px;
     text-align: right;
 }
+
+.pt-dialog-footer {
+    display: flex;
+}
+
+.pt-dialog-footer-actions {
+    flex: 1;
+}

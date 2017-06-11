@@ -17,6 +17,9 @@ type State = {
     bottomUp?: Object[],
     settingsOpen: boolean,
     settings: Object,
+    // in percent
+    flameWidth: number,
+    dataDirPath: ?string,
 };
 
 class App extends React.Component {
@@ -25,6 +28,7 @@ class App extends React.Component {
         files: [],
         settingsOpen: false,
         flameWidth: 100,
+        dataDirPath: null,
     };
 
     componentDidMount() {
@@ -40,6 +44,7 @@ class App extends React.Component {
             }
             this.setState({
                 settings: message.settings,
+                dataDirPath: message.dataDirPath,
             });
         });
         ipcRenderer.on('new-data', (event, message) => {
@@ -85,6 +90,7 @@ class App extends React.Component {
                             });
                         }}
                         settings={settings}
+                        dataDirPath={this.state.dataDirPath}
                     />}
                 <div className="header">
                     <div className="left-group">
