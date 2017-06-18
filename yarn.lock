@@ -27,6 +27,52 @@
   version "1.4.1"
   resolved "https://registry.yarnpkg.com/@types/tether/-/tether-1.4.1.tgz#828b38034b01edce44dc42935229067aec736f4a"
 
+"@vx/axis@^0.0.119":
+  version "0.0.119"
+  resolved "https://registry.yarnpkg.com/@vx/axis/-/axis-0.0.119.tgz#21f681b42c52a8fa743c22dae9da798c9f15a9c0"
+  dependencies:
+    "@vx/group" "0.0.114"
+    "@vx/point" "0.0.112"
+    "@vx/shape" "0.0.119"
+    classnames "^2.2.5"
+    react "^15.4.2"
+
+"@vx/curve@0.0.112", "@vx/curve@^0.0.112":
+  version "0.0.112"
+  resolved "https://registry.yarnpkg.com/@vx/curve/-/curve-0.0.112.tgz#8e4880a7ae8902bbd5b337ad1b0719bdfb28df3d"
+  dependencies:
+    d3-shape "^1.0.6"
+
+"@vx/gradient@^0.0.112":
+  version "0.0.112"
+  resolved "https://registry.yarnpkg.com/@vx/gradient/-/gradient-0.0.112.tgz#9a4bb18a734137b51e86d8c89d52a4c4216ada7c"
+  dependencies:
+    classnames "^2.2.5"
+    react "^15.4.2"
+
+"@vx/group@0.0.114":
+  version "0.0.114"
+  resolved "https://registry.yarnpkg.com/@vx/group/-/group-0.0.114.tgz#3256d6c26e005dc662a6b8be42dc8ec9ce2f47da"
+  dependencies:
+    classnames "^2.2.5"
+    react "15.4.2"
+
+"@vx/point@0.0.112":
+  version "0.0.112"
+  resolved "https://registry.yarnpkg.com/@vx/point/-/point-0.0.112.tgz#cd5b0740268bb432550902ad5e00261bad641cef"
+
+"@vx/shape@0.0.119", "@vx/shape@^0.0.119":
+  version "0.0.119"
+  resolved "https://registry.yarnpkg.com/@vx/shape/-/shape-0.0.119.tgz#6e74b5844de570ca79e37864de5538c43cfd851f"
+  dependencies:
+    "@vx/curve" "0.0.112"
+    "@vx/group" "0.0.114"
+    "@vx/point" "0.0.112"
+    classnames "^2.2.5"
+    d3-shape "^1.2.0"
+    prop-types "^15.5.10"
+    react "^15.4.2"
+
 abbrev@1:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/abbrev/-/abbrev-1.1.0.tgz#d0554c2256636e2f56e7c2e5ad183f859428d81f"
@@ -804,6 +850,12 @@ d3-selection@1, d3-selection@1.0.5:
 d3-shape@1.0.6:
   version "1.0.6"
   resolved "https://registry.yarnpkg.com/d3-shape/-/d3-shape-1.0.6.tgz#b09e305cf0c7c6b9a98c90e6b42f62dac4bcfd5b"
+  dependencies:
+    d3-path "1"
+
+d3-shape@^1.0.6, d3-shape@^1.2.0:
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/d3-shape/-/d3-shape-1.2.0.tgz#45d01538f064bafd05ea3d6d2cb748fd8c41f777"
   dependencies:
     d3-path "1"
 
@@ -1992,7 +2044,7 @@ lodash@^4.0.0, lodash@^4.17.4, lodash@^4.2.0, lodash@^4.3.0:
   version "4.17.4"
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.4.tgz#78203a4d1c328ae1d86dca6460e369b57f4055ae"
 
-loose-envify@^1.0.0, loose-envify@^1.1.0:
+loose-envify@^1.0.0, loose-envify@^1.1.0, loose-envify@^1.3.1:
   version "1.3.1"
   resolved "https://registry.yarnpkg.com/loose-envify/-/loose-envify-1.3.1.tgz#d1a8ad33fa9ce0e713d65fdd0ac8b748d478c848"
   dependencies:
@@ -2412,7 +2464,14 @@ promise@^7.1.1:
   dependencies:
     asap "~2.0.3"
 
-prop-types@^15.5.7, prop-types@^15.5.8, prop-types@~15.5.7:
+prop-types@^15.5.10, prop-types@^15.5.7, prop-types@~15.5.7:
+  version "15.5.10"
+  resolved "https://registry.yarnpkg.com/prop-types/-/prop-types-15.5.10.tgz#2797dfc3126182e3a95e3dfbb2e893ddd7456154"
+  dependencies:
+    fbjs "^0.8.9"
+    loose-envify "^1.3.1"
+
+prop-types@^15.5.8:
   version "15.5.8"
   resolved "https://registry.yarnpkg.com/prop-types/-/prop-types-15.5.8.tgz#6b7b2e141083be38c8595aa51fc55775c7199394"
   dependencies:
@@ -2486,7 +2545,15 @@ react-motion@^0.5.0:
     prop-types "^15.5.8"
     raf "^3.1.0"
 
-react@^15.5.4:
+react@15.4.2:
+  version "15.4.2"
+  resolved "https://registry.yarnpkg.com/react/-/react-15.4.2.tgz#41f7991b26185392ba9bae96c8889e7e018397ef"
+  dependencies:
+    fbjs "^0.8.4"
+    loose-envify "^1.1.0"
+    object-assign "^4.1.0"
+
+react@^15.4.2, react@^15.5.4:
   version "15.5.4"
   resolved "https://registry.yarnpkg.com/react/-/react-15.5.4.tgz#fa83eb01506ab237cdc1c8c3b1cea8de012bf047"
   dependencies:

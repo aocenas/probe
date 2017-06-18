@@ -7,6 +7,7 @@ const { NonIdealState, Button } = require('@blueprintjs/core');
 const Tree = require('./Tree');
 const Flame = require('./Flame');
 const Settings = require('./Settings');
+const MemoryGraph = require('./MemoryGraph');
 const { processCallTree } = require('../graphUtils');
 
 type State = {
@@ -34,12 +35,13 @@ class App extends React.Component {
     componentDidMount() {
         ipcRenderer.on('initial-data', (event, message) => {
             if (message.tree) {
-                const { items, roots } = processCallTree(message.tree);
+                const { items, roots, memory } = processCallTree(message.tree);
                 this.setState({
                     topDown: roots,
                     bottomUp: items,
                     tree: message.tree,
                     currentFile: message.files.slice(-1)[0],
+                    memory,
                 });
             }
             this.setState({
@@ -50,26 +52,22 @@ class App extends React.Component {
         });
         ipcRenderer.on('new-data', (event, message) => {
             const isNew = !this.state.files.includes(message.name);
-            if (isNew) {
-                const { items, roots } = processCallTree(message.tree);
+            if (isNew || message.name === this.state.currentFile) {
+                const { items, roots, memory } = processCallTree(message.tree);
                 this.setState({
                     topDown: roots,
                     bottomUp: items,
-                    files: [...this.state.files, message.name],
-                    currentFile: message.name,
                     tree: message.tree,
+                    memory,
                 });
-            } else {
-                if (message.name === this.state.currentFile) {
-                    const { items, roots } = processCallTree(message.tree);
+                if (isNew) {
                     this.setState({
-                        topDown: roots,
-                        bottomUp: items,
-                        tree: message.tree,
+                        files: [...this.state.files, message.name],
+                        currentFile: message.name,
                     });
                 }
-                // else throw away, user probably changed file before it arrived
             }
+            // else throw away, user probably changed file before it arrived
         });
         ipcRenderer.send('app-ready');
     }
@@ -185,6 +183,7 @@ class App extends React.Component {
             if (type === 'flame') {
                 content = (
                     <div className="flame-wrapper">
+                        <MemoryGraph memoryData={this.state.memory} />
                         <Flame
                             tree={tree}
                             style={{ width: `${flameWidth}%` }}

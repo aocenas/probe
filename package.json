@@ -14,6 +14,10 @@
   "license": "ISC",
   "dependencies": {
     "@blueprintjs/core": "^1.14.0",
+    "@vx/axis": "^0.0.119",
+    "@vx/curve": "^0.0.112",
+    "@vx/gradient": "^0.0.112",
+    "@vx/shape": "^0.0.119",
     "babel": "^6.23.0",
     "babel-cli": "^6.24.1",
     "babel-eslint": "^7.2.2",
