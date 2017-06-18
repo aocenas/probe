@@ -1,12 +1,11 @@
-const path = require('path');
 const React = require('react');
-const moment = require('moment');
 const { ipcRenderer } = require('electron');
 const { NonIdealState, Button } = require('@blueprintjs/core');
 
 const Tree = require('./Tree');
 const Flame = require('./Flame');
 const Settings = require('./Settings');
+const Header = require('./Header');
 const MemoryGraph = require('./MemoryGraph');
 const { processCallTree } = require('../graphUtils');
 
@@ -91,76 +90,20 @@ class App extends React.Component {
                         settings={settings}
                         dataDirPath={this.state.dataDirPath}
                     />}
-                <div className="header">
-                    <div className="left-group">
-                        {this.typeSelect()}
-                        {this.dataSelect()}
-                    </div>
-                    {settings &&
-                        <Button
-                            iconName="cog"
-                            className="pt-minimal"
-                            onClick={() =>
-                                this.setState({ settingsOpen: true })}
-                        />}
-                </div>
+                <Header
+                    onSettingsClick={() => this.setState({ settingsOpen: true }}
+                    onFileChange={fileName => {
+                        this.setState({ currentFile: fileName });
+                        ipcRenderer.send('request-data', fileName);
+                    }}
+                    onTypeChange={type => this.setState({ type })}
+                    currentFile={this.state.currentFile}
+                    files={this.state.files}
+                    type={this.state.type}
+                />
 
                 {this.showContent()}
 
-            </div>
-        );
-    }
-
-    dataSelect() {
-        const { currentFile, files } = this.state;
-        if (!files.length) {
-            return null;
-        }
-        return (
-            <div className="pt-select pt-minimal">
-                <select
-                    onChange={event => {
-                        this.setState({
-                            currentFile: event.target.value,
-                        });
-                        ipcRenderer.send('request-data', event.target.value);
-                    }}
-                    value={currentFile}
-                    disabled={!files}
-                >
-                    {files.map(file => {
-                        return (
-                            <option key={file} value={file}>
-                                {parseFileName(file)}
-                            </option>
-                        );
-                    })}
-                </select>
-            </div>
-        );
-    }
-
-    typeSelect() {
-        const { type, topDown } = this.state;
-        const noData = !topDown;
-        return (
-            <div className="pt-select pt-minimal">
-                <select
-                    onChange={event =>
-                        this.setState({ type: event.target.value })}
-                    value={type}
-                    disabled={noData}
-                >
-                    <option value="top-down">
-                        Tree (top down)
-                    </option>
-                    <option value="bottom-up">
-                        Heavy (bottom up)
-                    </option>
-                    <option value="flame">
-                        Flame graph
-                    </option>
-                </select>
             </div>
         );
     }
@@ -213,13 +156,5 @@ class App extends React.Component {
     }
 }
 
-const parseFileName = (fileName: string): string => {
-    const parts = path.basename(fileName, '.json').split('_');
-    const date = parts[1];
-    const name = parts[2];
-    const namePart = name ? ` [${name}]` : '';
-
-    return `${moment(date).format('YYYY-MM-DD HH:mm:ss')}${namePart}`;
-};
 
 module.exports = App;
