@@ -3,10 +3,9 @@ const { ipcRenderer } = require('electron');
 const { NonIdealState } = require('@blueprintjs/core');
 
 const Tree = require('./Tree');
-const Flame = require('./Flame');
 const Settings = require('./Settings');
 const Header = require('./Header');
-const MemoryGraph = require('./MemoryGraph');
+const FlamePage = require('./FlamePage');
 const { processEvents, parseEvents } = require('../graphUtils');
 
 type State = {
@@ -16,7 +15,6 @@ type State = {
     settingsOpen: boolean,
     settings: Object,
     // in percent
-    flameWidth: number,
     dataDirPath: ?string,
 
     root?: Object,
@@ -30,7 +28,6 @@ class App extends React.Component {
         type: 'flame',
         files: [],
         settingsOpen: false,
-        flameWidth: 100,
         dataDirPath: null,
     };
 
@@ -118,7 +115,6 @@ class App extends React.Component {
 
     showContent() {
         const {
-            flameWidth,
             type,
             currentFile,
             root,
@@ -132,13 +128,10 @@ class App extends React.Component {
         } else {
             if (type === 'flame') {
                 return (
-                    <div className="flame-wrapper">
-                        <MemoryGraph memoryData={this.state.memory} />
-                        <Flame
-                            root={root}
-                            style={{ width: `${flameWidth}%` }}
-                        />
-                    </div>
+                    <FlamePage
+                        memoryData={this.state.memory}
+                        root={root}
+                    />
                 );
             } else {
                 const roots = type === 'top-down'

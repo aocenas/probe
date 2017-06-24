@@ -8,27 +8,17 @@ const { LinearGradient } = require('@vx/gradient');
 class MemoryGraph extends React.Component {
     static propTypes = {
         memoryData: PT.array.isRequired,
+        width: PT.number.isRequired,
     };
-
-    state = {
-        width: 0,
-    };
-
-    componentDidMount() {
-        this.setState({
-            width: this._el.getBoundingClientRect().width,
-        });
-        window.addEventListener('resize', this.onResize);
-    }
 
     render() {
-        const { memoryData } = this.props;
+        const { memoryData, width } = this.props;
         const x = d => d.time;
         const y = d => d.val;
         const xScale = d3
             .scaleLinear()
             .domain(d3.extent(memoryData, x))
-            .rangeRound([0, this.state.width]);
+            .rangeRound([0, width]);
         const yScale = d3
             .scaleLinear()
             .domain(d3.extent(memoryData, y))
@@ -39,7 +29,7 @@ class MemoryGraph extends React.Component {
                 <svg
                     className="memory"
                     ref={el => (this._el = el)}
-                    width={this.state.width}
+                    width={width}
                     height={200}
                 >
                     <LinearGradient from="#fbc2eb" to="#a6c1ee" id="gradient" />

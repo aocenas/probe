@@ -12,35 +12,16 @@ const frameHeight = 25;
 class Flame extends React.PureComponent {
     static propTypes = {
         root: PT.object.isRequired,
+        width: PT.number.isRequired,
     };
 
     state = {
         showTooltip: false,
     };
 
-    onResize = () => {
-        this.timer && clearTimeout(this.timer);
-        this.timer = setTimeout(() => {
-            this.setState({
-                width: this._el.getBoundingClientRect().width,
-            });
-        }, 100);
-    };
-
-    componentDidMount() {
-        this.setState({
-            width: this._el.getBoundingClientRect().width,
-        });
-        window.addEventListener('resize', this.onResize);
-    }
-
-    componentWillUnmount() {
-        window.removeEventListener('resize', this.onResize);
-    }
-
     render() {
-        const { showTooltip, tooltipData, tooltipPosition, width } = this.state;
-        const { root } = this.props;
+        const { showTooltip, tooltipData, tooltipPosition } = this.state;
+        const { root, width } = this.props;
         return (
             <div className="flame" ref={el => this._el = el}>
                 {showTooltip &&
@@ -149,7 +130,10 @@ class FlameInternal extends React.PureComponent {
             newProps.root !== this.props.root ||
             newProps.width !== this.props.width
         ) {
-            this.setState(this.getSetup(newProps));
+            this.setState({
+                ...this.getSetup(newProps),
+                animate: false,
+            });
         }
     }
 
@@ -191,6 +175,7 @@ class FlameInternal extends React.PureComponent {
             descendants,
             height,
             selected,
+            animate,
         } = this.state;
         const { onMouseOut, onMouseOver, width } = this.props;
         const allItems = descendants.filter(d => {
@@ -205,9 +190,11 @@ class FlameInternal extends React.PureComponent {
             <TransitionMotion
                 styles={allItems.map(item => {
                     let style = this.getItemStyle(scaleX)(item);
-                    style = _.mapValues(style, val =>
-                        spring(val, { stiffness: 300, damping: 30 })
-                    );
+                    if (animate) {
+                        style = _.mapValues(style, val =>
+                            spring(val, { stiffness: 300, damping: 30 })
+                        );
+                    }
                     return {
                         key: itemKey(item.data),
                         data: item,
@@ -269,6 +256,7 @@ class FlameInternal extends React.PureComponent {
                                                     .scaleLinear()
                                                     .domain([item.x0, item.x1])
                                                     .range([0, width]),
+                                                animate: true,
                                             })}
                                         onMouseOut={onMouseOut}
                                         onMouseOver={e =>
