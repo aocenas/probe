@@ -21,7 +21,7 @@ class FlamePage extends React.PureComponent {
             this.setState({
                 width: this._el.getBoundingClientRect().width,
             });
-        }, 100);
+        }, 250);
     };
 
     componentDidMount() {
