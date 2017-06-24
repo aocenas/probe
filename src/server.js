@@ -13,7 +13,7 @@ const createServer = (port: number, onData: (Data) => void) => {
 
         req.on('end', () => {
             const { query } = url.parse(req.url, true);
-            onData({ name: query.name, data });
+            onData({ query, data });
             res.writeHead(200, { 'Content-Type': 'text/plain' });
             res.end('ok');
         });

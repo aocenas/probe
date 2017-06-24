@@ -1,25 +1,28 @@
 const React = require('react');
 const { ipcRenderer } = require('electron');
-const { NonIdealState, Button } = require('@blueprintjs/core');
+const { NonIdealState } = require('@blueprintjs/core');
 
 const Tree = require('./Tree');
 const Flame = require('./Flame');
 const Settings = require('./Settings');
 const Header = require('./Header');
 const MemoryGraph = require('./MemoryGraph');
-const { processCallTree } = require('../graphUtils');
+const { processEvents, parseEvents } = require('../graphUtils');
 
 type State = {
     type: 'top-down' | 'bottom-up' | 'flame',
     files: string[],
     currentFile?: string,
-    topDown?: Object[],
-    bottomUp?: Object[],
     settingsOpen: boolean,
     settings: Object,
     // in percent
     flameWidth: number,
     dataDirPath: ?string,
+
+    root?: Object,
+    bottomUpRoots?: Object[],
+    topDownRoots?: Object[],
+    memory?: Object[],
 };
 
 class App extends React.Component {
@@ -33,14 +36,10 @@ class App extends React.Component {
 
     componentDidMount() {
         ipcRenderer.on('initial-data', (event, message) => {
-            if (message.tree) {
-                const { items, roots, memory } = processCallTree(message.tree);
+            if (message.data) {
                 this.setState({
-                    topDown: roots,
-                    bottomUp: items,
-                    tree: message.tree,
+                    ...processEvents(parseEvents(message.data)),
                     currentFile: message.files.slice(-1)[0],
-                    memory,
                 });
             }
             this.setState({
@@ -48,17 +47,20 @@ class App extends React.Component {
                 dataDirPath: message.dataDirPath,
                 files: message.files || [],
             });
+
+            if (message.files && message.files.length) {
+                const currentFile = message.files.slice(-1)[0];
+                this.setState({ currentFile });
+                ipcRenderer.send('request-data', currentFile);
+            }
         });
+
         ipcRenderer.on('new-data', (event, message) => {
             const isNew = !this.state.files.includes(message.name);
+
             if (isNew || message.name === this.state.currentFile) {
-                const { items, roots, memory } = processCallTree(message.tree);
-                this.setState({
-                    topDown: roots,
-                    bottomUp: items,
-                    tree: message.tree,
-                    memory,
-                });
+                this.setState(processEvents(parseEvents(message.data)));
+
                 if (isNew) {
                     this.setState({
                         files: [...this.state.files, message.name],
@@ -66,13 +68,15 @@ class App extends React.Component {
                     });
                 }
             }
-            // else throw away, user probably changed file before it arrived
+
+            // else throw away, user probably changed file before data arrived
         });
+
         ipcRenderer.send('app-ready');
     }
 
     render() {
-        const { settingsOpen, settings } = this.state;
+        const { settingsOpen, settings, files } = this.state;
 
         return (
             <div className="app">
@@ -91,7 +95,8 @@ class App extends React.Component {
                         dataDirPath={this.state.dataDirPath}
                     />}
                 <Header
-                    onSettingsClick={() => this.setState({ settingsOpen: true }}
+                    onSettingsClick={() =>
+                        this.setState({ settingsOpen: true })}
                     onFileChange={fileName => {
                         this.setState({ currentFile: fileName });
                         ipcRenderer.send('request-data', fileName);
@@ -100,9 +105,12 @@ class App extends React.Component {
                     currentFile={this.state.currentFile}
                     files={this.state.files}
                     type={this.state.type}
+                    disabled={!files.length}
                 />
 
-                {this.showContent()}
+                <div className="content-wrapper">
+                    {this.showContent()}
+                </div>
 
             </div>
         );
@@ -112,49 +120,38 @@ class App extends React.Component {
         const {
             flameWidth,
             type,
-            topDown,
-            bottomUp,
             currentFile,
-            tree,
+            root,
+            bottomUpRoots,
+            topDownRoots,
         } = this.state;
-        const noData = !topDown;
+        const noData = !root;
 
         if (noData) {
             return <NonIdealState title="No data yet" visual="flows" />;
         } else {
-            let content;
             if (type === 'flame') {
-                content = (
+                return (
                     <div className="flame-wrapper">
                         <MemoryGraph memoryData={this.state.memory} />
                         <Flame
-                            tree={tree}
+                            root={root}
                             style={{ width: `${flameWidth}%` }}
                         />
                     </div>
                 );
             } else {
-                const items = type === 'top-down' ? topDown : bottomUp;
-                content = (
+                const roots = type === 'top-down'
+                    ? topDownRoots
+                    : bottomUpRoots;
+                return (
                     <div className="tree-wrapper">
-                        <Tree
-                            itemKeys={Object.keys(items)}
-                            allItems={bottomUp}
-                            type={type}
-                            dataId={currentFile}
-                        />
+                        <Tree roots={roots} type={type} dataId={currentFile} />
                     </div>
                 );
             }
-
-            return (
-                <div className="content-wrapper">
-                    {content}
-                </div>
-            );
         }
     }
 }
-
 
 module.exports = App;

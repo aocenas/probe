@@ -24,7 +24,7 @@ class MemoryGraph extends React.Component {
     render() {
         const { memoryData } = this.props;
         const x = d => d.time;
-        const y = d => d.size;
+        const y = d => d.val;
         const xScale = d3
             .scaleLinear()
             .domain(d3.extent(memoryData, x))

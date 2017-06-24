@@ -11,7 +11,7 @@ const frameHeight = 25;
 
 class Flame extends React.PureComponent {
     static propTypes = {
-        tree: PT.object.isRequired,
+        root: PT.object.isRequired,
     };
 
     state = {
@@ -40,7 +40,7 @@ class Flame extends React.PureComponent {
 
     render() {
         const { showTooltip, tooltipData, tooltipPosition, width } = this.state;
-        const { tree } = this.props;
+        const { root } = this.props;
         return (
             <div className="flame" ref={el => this._el = el}>
                 {showTooltip &&
@@ -106,7 +106,7 @@ class Flame extends React.PureComponent {
                         </div>
                     </div>}
                 <FlameInternal
-                    tree={tree}
+                    root={root}
                     onMouseOver={this.showTooltip}
                     onMouseOut={this.hideTooltip}
                     width={width || 500}
@@ -133,7 +133,7 @@ class Flame extends React.PureComponent {
 
 class FlameInternal extends React.PureComponent {
     static propTypes = {
-        tree: PT.object.isRequired,
+        root: PT.object.isRequired,
         width: PT.number.isRequired,
         onMouseOver: PT.func.isRequired,
         onMouseOut: PT.func.isRequired,
@@ -146,7 +146,7 @@ class FlameInternal extends React.PureComponent {
 
     componentWillReceiveProps(newProps) {
         if (
-            newProps.tree !== this.props.tree ||
+            newProps.root !== this.props.root ||
             newProps.width !== this.props.width
         ) {
             this.setState(this.getSetup(newProps));
@@ -154,7 +154,7 @@ class FlameInternal extends React.PureComponent {
     }
 
     getSetup(newProps) {
-        const root = d3.hierarchy(newProps.tree);
+        const root = d3.hierarchy(newProps.root);
         root.sum(d => {
             return d.self ? d.self : 0;
         });
@@ -209,7 +209,7 @@ class FlameInternal extends React.PureComponent {
                         spring(val, { stiffness: 300, damping: 30 })
                     );
                     return {
-                        key: item.data.start.toString(),
+                        key: itemKey(item.data),
                         data: item,
                         style,
                     };
@@ -253,7 +253,7 @@ class FlameInternal extends React.PureComponent {
                                 return (
                                     <g
                                         opacity={style.opacity}
-                                        key={item.data.start}
+                                        key={itemKey(item.data)}
                                         className={cx('flame-item', {
                                             selected: item === selected,
                                         })}
@@ -296,8 +296,7 @@ class FlameInternal extends React.PureComponent {
                                                   width={style.width}
                                               >
                                                   <div className="flame-label">
-                                                      {item.data.func ||
-                                                          'program'}
+                                                      {itemLabel(item.data)}
                                                   </div>
                                               </foreignObject>
                                             : null}
@@ -338,6 +337,9 @@ class FlameInternal extends React.PureComponent {
         }
     };
 }
+
+const itemLabel = (item) => item.func || 'program';
+const itemKey = (item) => `${itemLabel(item)}${item.timeStart}`;
 
 const translate = (x, y) => `translate(${x}, ${y})`;
 

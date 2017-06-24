@@ -12,6 +12,7 @@ class Header extends React.Component {
         onFileChange: PT.func.isRequired,
         onTypeChange: PT.func.isRequired,
         onSettingsClick: PT.func.isRequired,
+        disabled: PT.bool,
     };
 
     render() {
@@ -22,20 +23,23 @@ class Header extends React.Component {
             onTypeChange,
             onFileChange,
             onSettingsClick,
+            disabled,
         } = this.props;
         return (
             <div className="header">
                 <div className="left-group">
                     <TypeSelect
                         type={type}
-                        disalbed={false}
+                        disabled={disabled}
                         onChange={onTypeChange}
                     />
-                    <DataSelect
-                        currentFile={currentFile}
-                        files={files}
-                        onChange={onFileChange}
-                    />
+                    {!disabled &&
+                        <DataSelect
+                            currentFile={currentFile}
+                            files={files}
+                            onChange={onFileChange}
+                        />
+                    }
                 </div>
                 <Button
                     iconName="cog"
@@ -47,8 +51,7 @@ class Header extends React.Component {
     }
 }
 
-const DataSelect = props => {
-    const { currentFile, files, onChange } = this.props;
+const DataSelect = ({ currentFile, files, onChange }) => {
     return (
         <div className="pt-select pt-minimal">
             <select
@@ -68,8 +71,7 @@ const DataSelect = props => {
     );
 };
 
-const TypeSelect = (props) => {
-    const { type, disabled, onChange } = this.props;
+const TypeSelect = ({ type, disabled, onChange }) => {
     return (
         <div className="pt-select pt-minimal">
             <select
