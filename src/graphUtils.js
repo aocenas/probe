@@ -162,6 +162,7 @@ const processEvents = (events: Event[]): ProcessingResult => {
                 current.timeEnd = event.time;
                 current.total = current.timeEnd - current.timeStart;
                 current.self = current.total - _.sum(current.children.map(c => c.total));
+                current.memEnd = event.mem;
             }
         }
     });
