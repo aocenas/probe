@@ -41,7 +41,6 @@ class FlamePage extends React.PureComponent {
                 <MemoryGraph
                     memoryData={this.props.memoryData}
                     width={this.state.width}
-                    root={this.props.root}
                 />
                 <Flame
                     root={this.props.root}
