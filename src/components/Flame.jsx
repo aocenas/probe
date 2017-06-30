@@ -132,12 +132,14 @@ class FlameInternal extends React.PureComponent {
     }
 
     componentWillReceiveProps(newProps) {
-        if (
-            newProps.root !== this.props.root ||
-            newProps.width !== this.props.width
-        ) {
+        if (newProps.root !== this.props.root) {
             this.setState({
                 ...this.getSetup(newProps),
+                animate: false,
+            });
+        } else if (newProps.width !== this.props.width) {
+            this.setState({
+                scaleX: this.state.scaleX.range([0, newProps.width]),
                 animate: false,
             });
         }
