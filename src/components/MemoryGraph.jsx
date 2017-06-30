@@ -29,7 +29,7 @@ class MemoryGraph extends React.Component {
             .rangeRound([50, 1]);
 
         let sampledData = memoryData.filter(
-            d => d.time >= domain[0] && d.time < domain[1]
+            d => d.time >= domain[0] && d.time <= domain[1]
         );
         sampledData = downsample(
             sampledData.map(d => [x(d), y(d)]),
