@@ -8,30 +8,34 @@ class MemoryGraph extends React.Component {
     static propTypes = {
         memoryData: PT.array.isRequired,
         width: PT.number.isRequired,
+        domain: PT.array,
     };
 
     render() {
-        let { memoryData, width } = this.props;
+        let { memoryData, width, domain } = this.props;
         if (!width) {
             return null;
         }
         const x = d => d.time;
         const y = d => d.val;
-        const scaleX = d3
-            .scaleLinear()
-            .domain(d3.extent(memoryData, x))
-            .rangeRound([0, width]);
+
+        domain = domain || d3.extent(memoryData, x);
+
+        const scaleX = d3.scaleLinear().domain(domain).rangeRound([0, width]);
 
         const scaleY = d3
             .scaleLinear()
             .domain(d3.extent(memoryData, y))
             .rangeRound([50, 1]);
 
-        let sampledData = downsample(
-            memoryData.map(d => [x(d), y(d)]),
+        let sampledData = memoryData.filter(
+            d => d.time >= domain[0] && d.time < domain[1]
+        );
+        sampledData = downsample(
+            sampledData.map(d => [x(d), y(d)]),
             Math.floor(width / 2)
         );
-        sampledData = sampledData.map(d => ({time: d[0], val: d[1]}));
+        sampledData = sampledData.map(d => ({ time: d[0], val: d[1] }));
 
         return (
             <div ref={el => (this._el = el)}>

@@ -1,4 +1,3 @@
-/* global window */
 const _ = require('lodash');
 const React = require('react');
 const cx = require('classnames');
@@ -13,6 +12,7 @@ class Flame extends React.PureComponent {
     static propTypes = {
         root: PT.object.isRequired,
         width: PT.number.isRequired,
+        onClick: PT.func.isRequired,
     };
 
     state = {
@@ -23,7 +23,7 @@ class Flame extends React.PureComponent {
         const { showTooltip, tooltipData, tooltipPosition } = this.state;
         const { root, width } = this.props;
         return (
-            <div className="flame" ref={el => this._el = el}>
+            <div className="flame" ref={el => (this._el = el)}>
                 {showTooltip &&
                     <div
                         className="flame-tooltip"
@@ -79,11 +79,15 @@ class Flame extends React.PureComponent {
                         </p>
                         <div className="tooltip-label-wrapper">
                             <div className="tooltip-label">self:</div>
-                            <div className="tooltip-value">{format(tooltipData.self)}</div>
+                            <div className="tooltip-value">
+                                {format(tooltipData.self)}
+                            </div>
                         </div>
                         <div className="tooltip-label-wrapper">
                             <div className="tooltip-label">total:</div>
-                            <div className="tooltip-value">{format(tooltipData.total)}</div>
+                            <div className="tooltip-value">
+                                {format(tooltipData.total)}
+                            </div>
                         </div>
                     </div>}
                 <FlameInternal
@@ -91,6 +95,7 @@ class Flame extends React.PureComponent {
                     onMouseOver={this.showTooltip}
                     onMouseOut={this.hideTooltip}
                     width={width || 500}
+                    onClick={this.props.onClick}
                 />
             </div>
         );
@@ -118,6 +123,7 @@ class FlameInternal extends React.PureComponent {
         width: PT.number.isRequired,
         onMouseOver: PT.func.isRequired,
         onMouseOut: PT.func.isRequired,
+        onClick: PT.func.isRequired,
     };
 
     constructor(props) {
@@ -160,13 +166,6 @@ class FlameInternal extends React.PureComponent {
         };
     }
 
-    componentDidMount() {
-        // const tree = this.props.tree;
-        // flame(tree)();
-    }
-
-    componentDidUpdate() {}
-
     render() {
         const {
             scaleX,
@@ -183,7 +182,8 @@ class FlameInternal extends React.PureComponent {
                 // filter smaller rects
                 scaleX(d.x1) - scaleX(d.x0) > 5 &&
                 // filter rects outside of the view
-                scaleX(d.x0) < width && scaleX(d.x1) > 0
+                scaleX(d.x0) < width &&
+                scaleX(d.x1) > 0
             );
         });
         return (
@@ -229,7 +229,7 @@ class FlameInternal extends React.PureComponent {
                     return (
                         <svg
                             className="flame-internal"
-                            ref={el => this._el = el}
+                            ref={el => (this._el = el)}
                             width={width}
                             height={height}
                         >
@@ -248,7 +248,7 @@ class FlameInternal extends React.PureComponent {
                                             style.left,
                                             scaleY(item.y0)
                                         )}
-                                        onClick={e =>
+                                        onClick={e => {
                                             this.setState({
                                                 selected: item,
                                                 scaleXPrev: scaleX,
@@ -257,7 +257,12 @@ class FlameInternal extends React.PureComponent {
                                                     .domain([item.x0, item.x1])
                                                     .range([0, width]),
                                                 animate: true,
-                                            })}
+                                            });
+                                            this.props.onClick([
+                                                item.data.timeStart,
+                                                item.data.timeEnd,
+                                            ]);
+                                        }}
                                         onMouseOut={onMouseOut}
                                         onMouseOver={e =>
                                             onMouseOver(
@@ -326,8 +331,8 @@ class FlameInternal extends React.PureComponent {
     };
 }
 
-const itemLabel = (item) => item.func || 'program';
-const itemKey = (item) => `${itemLabel(item)}${item.timeStart}`;
+const itemLabel = item => item.func || 'program';
+const itemKey = item => `${itemLabel(item)}${item.timeStart}`;
 
 const translate = (x, y) => `translate(${x}, ${y})`;
 

@@ -13,6 +13,7 @@ class FlamePage extends React.PureComponent {
 
     state = {
         width: 0,
+        domain: null,
     };
 
     onResize = () => {
@@ -25,9 +26,8 @@ class FlamePage extends React.PureComponent {
     };
 
     componentDidMount() {
-        this.setState({
-            width: this._el.getBoundingClientRect().width,
-        });
+        const width = this._el.getBoundingClientRect().width;
+        this.setState({ width });
         window.addEventListener('resize', this.onResize);
     }
 
@@ -37,18 +37,24 @@ class FlamePage extends React.PureComponent {
 
     render() {
         return (
-            <div className="flame-wrapper" ref={el => this._el = el}>
+            <div className="flame-wrapper" ref={el => (this._el = el)}>
                 <MemoryGraph
                     memoryData={this.props.memoryData}
                     width={this.state.width}
+                    domain={this.state.domain}
                 />
                 <Flame
                     root={this.props.root}
                     width={this.state.width}
+                    onClick={this._setDomain}
                 />
             </div>
         );
     }
+
+    _setDomain = domain => {
+        this.setState({ domain });
+    };
 }
 
 module.exports = FlamePage;
