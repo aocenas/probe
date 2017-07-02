@@ -8,6 +8,25 @@ const { format } = require('../utils/format');
 
 const frameHeight = 25;
 
+const computeTooltipPosition = (target, tooltip, width) => {
+    const left = Math.max(
+        Math.min(
+            width - tooltip.width,
+            target.left + target.width / 2 - tooltip.width / 2
+        ),
+        0
+    );
+
+    const offset = 10;
+
+    let top = target.top - (tooltip.height + offset);
+    if (top < 0) {
+        top = target.top + target.height + offset;
+    }
+
+    return { top, left };
+};
+
 class Flame extends React.PureComponent {
     static propTypes = {
         root: PT.object.isRequired,
@@ -37,33 +56,20 @@ class Flame extends React.PureComponent {
                                 el &&
                                 this.state.tooltipPosition.top === undefined
                             ) {
-                                const { tooltipTarget, width } = this.state;
+                                const { tooltipTarget } = this.state;
+                                const { width } = this.props;
                                 const tooltipRect = el.getBoundingClientRect();
-
-                                const left = Math.max(
-                                    Math.min(
-                                        width - tooltipRect.width,
-                                        tooltipTarget.left +
-                                            tooltipTarget.width / 2 -
-                                            tooltipRect.width / 2
-                                    ),
-                                    0
+                                const tooltipTargetRect = d3
+                                    .select(`g#${tooltipTarget}`)
+                                    .node()
+                                    .getBoundingClientRect();
+                                const pos = computeTooltipPosition(
+                                    tooltipTargetRect,
+                                    tooltipRect,
+                                    width
                                 );
-
-                                const offset = 10;
-
-                                let top =
-                                    tooltipTarget.top -
-                                    (tooltipRect.height + offset);
-                                if (top < 0) {
-                                    top =
-                                        tooltipTarget.top +
-                                        tooltipTarget.height +
-                                        offset;
-                                }
-
                                 this.setState({
-                                    tooltipPosition: { left, top },
+                                    tooltipPosition: pos,
                                 });
                             }
                         }}
@@ -101,11 +107,11 @@ class Flame extends React.PureComponent {
         );
     }
 
-    showTooltip = (position, itemData) => {
+    showTooltip = (key, itemData) => {
         this.setState({
             showTooltip: true,
             tooltipData: itemData,
-            tooltipTarget: position,
+            tooltipTarget: key,
             tooltipPosition: {},
         });
     };
@@ -236,13 +242,16 @@ class FlameInternal extends React.PureComponent {
                             height={height}
                         >
                             {interpolatedStyles.map(style => {
-                                const item = style.data;
+                                const { data: item } = style;
                                 style = style.style;
                                 const itemHeight = scaleY(item.y1 - item.y0);
+                                const key = itemKey(item.data);
+
                                 return (
                                     <g
                                         opacity={style.opacity}
-                                        key={itemKey(item.data)}
+                                        key={key}
+                                        id={key}
                                         className={cx('flame-item', {
                                             selected: item === selected,
                                         })}
@@ -267,15 +276,7 @@ class FlameInternal extends React.PureComponent {
                                         }}
                                         onMouseOut={onMouseOut}
                                         onMouseOver={e =>
-                                            onMouseOver(
-                                                {
-                                                    left: style.left,
-                                                    width: style.width,
-                                                    top: scaleY(item.y0),
-                                                    height: itemHeight,
-                                                },
-                                                item.data
-                                            )}
+                                            onMouseOver(key, item.data)}
                                     >
                                         <rect
                                             stroke="white"
@@ -334,7 +335,16 @@ class FlameInternal extends React.PureComponent {
 }
 
 const itemLabel = item => item.func || 'program';
-const itemKey = item => `${itemLabel(item)}${item.timeStart}`;
+const itemKey = item =>
+    `${itemLabel(item)}${item.timeStart}`
+        .split('.')
+        .join('')
+        .split('<')
+        .join('')
+        .split('>')
+        .join('')
+        .split(':')
+        .join('');
 
 const translate = (x, y) => `translate(${x}, ${y})`;
 
