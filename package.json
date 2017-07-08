@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest --testPathPattern=\"build/.*\"",
     "watch": "babel src -d build -w --source-maps",
     "build": "babel src -d build",
     "release": "electron-packager . --out=./release --package-manager=yarn",
@@ -17,6 +17,7 @@
     "@vx/axis": "^0.0.119",
     "@vx/curve": "^0.0.112",
     "@vx/gradient": "^0.0.112",
+    "@vx/marker": "^0.0.120",
     "@vx/shape": "^0.0.119",
     "babel": "^6.23.0",
     "babel-cli": "^6.24.1",
@@ -43,6 +44,7 @@
     "eslint": "^3.19.0",
     "eslint-plugin-react": "^6.10.3",
     "flow-bin": "^0.44.0",
+    "jest": "^20.0.4",
     "prettier": "^1.4.4"
   }
 }

@@ -104,7 +104,7 @@ type ProcessingResult = {
 const processEvents = (events: Event[]): ProcessingResult => {
     const stack = [];
     const statsMap = {};
-    const memory = [];
+    let memory = [];
     let topDownRoots = [];
     let root = {
         root: true,
@@ -173,6 +173,16 @@ const processEvents = (events: Event[]): ProcessingResult => {
     root.self = 0;
 
     topDownRoots = cleanupLooseEnds(root, statsMap, topDownRoots);
+    memory = memory.reduce((acc, item) => {
+        if (!acc.last) {
+            acc.last = item;
+            acc.all.push(item);
+        } else if (item.val !== acc.last.val) {
+            acc.last = item;
+            acc.all.push(item);
+        }
+        return acc;
+    }, {all: [], last: null}).all;
 
     return {
         topDownRoots,
