@@ -16,6 +16,7 @@ class FlameItem extends React.PureComponent {
         width: PT.number.isRequired,
         showLabel: PT.bool.isRequired,
         label: PT.string.isRequired,
+        fill: PT.string.isRequired,
     };
 
     render() {
@@ -32,6 +33,7 @@ class FlameItem extends React.PureComponent {
             width,
             showLabel,
             label,
+            fill,
         } = this.props;
         return (
             <g
@@ -44,12 +46,11 @@ class FlameItem extends React.PureComponent {
                 onMouseOver={onMouseOver}
             >
                 <rect
-                    stroke="white"
                     height={height}
                     rx="4"
                     ry="4"
-                    strokeWidth={3}
                     width={width}
+                    fill={fill}
                 />
                 {showLabel
                     ? <foreignObject

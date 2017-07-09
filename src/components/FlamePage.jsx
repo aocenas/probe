@@ -1,9 +1,12 @@
 /* global window */
 const React = require('react');
 const PT = require('prop-types');
+const d3 = require('d3');
 
 const Flame = require('./flame/Flame');
 const MemoryGraph = require('./MemoryGraph');
+
+const y = d => d.val;
 
 class FlamePage extends React.PureComponent {
     static propTypes = {
@@ -36,18 +39,23 @@ class FlamePage extends React.PureComponent {
     }
 
     render() {
+        const { domain, width } = this.state;
+        const { memoryData, root } = this.props;
+        const memoryExtentText = d3
+            .extent(memoryData, y)
+            .map(y => y.toLocaleString(undefined, { maximumFractionDigits: 1 }) + 'MB')
+            .join(' TO ');
         return (
             <div className="flame-page" ref={el => (this._el = el)}>
+                <p className="prb-label">
+                    MEMORY ({memoryExtentText})
+                </p>
                 <MemoryGraph
-                    memoryData={this.props.memoryData}
-                    width={this.state.width}
-                    domain={this.state.domain}
+                    memoryData={memoryData}
+                    width={width}
+                    domain={domain}
                 />
-                <Flame
-                    root={this.props.root}
-                    width={this.state.width}
-                    onClick={this._setDomain}
-                />
+                <Flame root={root} width={width} onClick={this._setDomain} />
             </div>
         );
     }

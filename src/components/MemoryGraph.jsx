@@ -1,14 +1,18 @@
-const _ = require('lodash');
 const React = require('react');
 const PT = require('prop-types');
 const d3 = require('d3');
 const { LinePath } = require('@vx/shape');
 const { Marker } = require('@vx/marker');
+const { Colors } = require('@blueprintjs/core');
+
 const downsample = require('../utils/downsample');
 const { getClosestY, getDataSlice } = require('../utils/graph');
 
 const x = d => d.time;
 const y = d => d.val;
+
+// ["#FFE39F", "#D2D5A1", "#ABC4A2", "#89B3A2", "#6C9FA1", "#538BA0", "#3E769E", "#2D619C", "#1F4B99"]
+
 
 class MemoryGraph extends React.Component {
     static propTypes = {
@@ -83,6 +87,7 @@ class MemoryGraph extends React.Component {
                     y={y}
                     curve={d3.curveStep}
                     strokeWidth="2"
+                    stroke={Colors.BLUE4}
                 />
                 {showMarker &&
                     markerLabel &&

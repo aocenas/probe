@@ -1,6 +1,25 @@
+@import "node_modules/@blueprintjs/core/dist/variables";
+
 .header {
     padding: 10px;
     border-bottom: 1px solid lightgray;
     display: flex;
     justify-content: space-between;
+    background: $dark-gray4;
+    color: $light-gray5;
+
+    .pt-select > select {
+        color: $light-gray5;
+        &:hover, &:active, &:focus  {
+            color: $light-gray5;
+        }
+    }
+
+    .pt-select::after {
+        color: $light-gray5;
+    }
+
+    & > button.pt-button::before {
+        color: $light-gray5;
+    }
 }

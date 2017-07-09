@@ -8,6 +8,29 @@ const FlameItem = require('./FlameItem');
 
 const frameHeight = 25;
 
+const colors = [
+    '#FFC940',
+    '#FBC03D',
+    '#F6B93B',
+    '#F2B038',
+    '#EDA835',
+    '#E8A033',
+    '#E39830',
+    '#DF8F2D',
+    '#DA872B',
+    '#D47F28',
+    '#CF7725',
+    '#CA6E23',
+    // '#C56620',
+    // '#BF5E1D',
+    // '#BA571B',
+    // '#B54E18',
+    // '#AF4515',
+    // '#A93E13',
+    // '#A43410',
+    // '#9E2B0E',
+];
+
 class FlameGraph extends React.PureComponent {
     static propTypes = {
         root: PT.object.isRequired,
@@ -48,6 +71,9 @@ class FlameGraph extends React.PureComponent {
         const treeLevels = descendants[0].height + 1;
 
         const height = treeLevels * frameHeight;
+        const colorScale = d3.scaleQuantize()
+            .domain([0, treeLevels])
+            .range(colors);
 
         return {
             scaleX: d3.scaleLinear().range([0, newProps.width]),
@@ -56,6 +82,7 @@ class FlameGraph extends React.PureComponent {
             selected: null,
             height: height,
             descendants,
+            colorScale,
         };
     }
 
@@ -68,6 +95,7 @@ class FlameGraph extends React.PureComponent {
             height,
             selected,
             animate,
+            colorScale,
         } = this.state;
         const { onMouseOut, onMouseOver, width } = this.props;
         const allItems = descendants.filter(d => {
@@ -131,35 +159,39 @@ class FlameGraph extends React.PureComponent {
                                 style = style.style;
                                 const itemHeight = scaleY(item.y1 - item.y0);
                                 const key = itemKey(item.data);
-                                return <FlameItem
-                                    opacity={style.opacity}
-                                    key={key}
-                                    id={key}
-                                    selected={item === selected}
-                                    translateX={style.left}
-                                    translateY={scaleY(item.y0)}
-                                    onClick={() => {
-                                        this.setState({
-                                            selected: item,
-                                            scaleXPrev: scaleX,
-                                            scaleX: d3
-                                                .scaleLinear()
-                                                .domain([item.x0, item.x1])
-                                                .range([0, width]),
-                                            animate: true,
-                                        });
-                                        this.props.onClick([
-                                            item.data.timeStart,
-                                            item.data.timeEnd,
-                                        ]);
-                                    }}
-                                    onMouseOut={onMouseOut}
-                                    onMouseOver={() => onMouseOver(key, item.data)}
-                                    height={itemHeight}
-                                    width={style.width}
-                                    showLabel={this.bigEnoughForLabel(item)}
-                                    label={itemLabel(item.data)}
-                                />;
+                                return (
+                                    <FlameItem
+                                        opacity={style.opacity}
+                                        key={key}
+                                        id={key}
+                                        selected={item === selected}
+                                        translateX={style.left}
+                                        translateY={scaleY(item.y0)}
+                                        onClick={() => {
+                                            this.setState({
+                                                selected: item,
+                                                scaleXPrev: scaleX,
+                                                scaleX: d3
+                                                    .scaleLinear()
+                                                    .domain([item.x0, item.x1])
+                                                    .range([0, width]),
+                                                animate: true,
+                                            });
+                                            this.props.onClick([
+                                                item.data.timeStart,
+                                                item.data.timeEnd,
+                                            ]);
+                                        }}
+                                        onMouseOut={onMouseOut}
+                                        onMouseOver={() =>
+                                            onMouseOver(key, item.data)}
+                                        height={itemHeight}
+                                        width={style.width}
+                                        showLabel={this.bigEnoughForLabel(item)}
+                                        label={itemLabel(item.data)}
+                                        fill={colorScale(item.depth)}
+                                    />
+                                );
                             })}
                         </svg>
                     );

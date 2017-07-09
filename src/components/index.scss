@@ -1,5 +1,7 @@
+@import "node_modules/@blueprintjs/core/dist/variables";
 @import "App";
 @import "Header";
+@import "MemoryGraph";
 @import "flame/Flame";
 @import "flame/FlameTooltip";
 @import "flame/FlameItem";
@@ -9,6 +11,7 @@ html {
 }
 
 body {
+    background-color: $light-gray5;
     overflow: hidden;
     height: 100%;
     margin: 0;
@@ -25,7 +28,7 @@ body {
     min-width: -webkit-min-content;
 }
 
-.tree > .header {
+.tree > .tree_header {
     display: flex;
     margin-bottom: 10px;
     font-size: 11px;
@@ -33,14 +36,14 @@ body {
     color: rgba(0,0,0,0.6);
 }
 
-.tree > .header > .fixed {
+.tree > .tree_header > .fixed {
     width: 90px;
     margin-right: 15px;
     text-align: right;
     cursor: pointer;
 }
 
-.tree > .header > .fixed.small {
+.tree > .tree_header > .fixed.small {
     width: 50px;
 }
 
@@ -104,4 +107,10 @@ body {
 
 .pt-dialog-footer-actions {
     flex: 1;
+}
+
+.prb-label {
+    color: $gray1;
+    font-size: 9px;
+    font-weight: bold;
 }

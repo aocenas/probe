@@ -61,7 +61,7 @@ class Tree extends React.Component {
         return (
             <ul className="tree">
                 {!subtree &&
-                    <li className="header">
+                    <li className="tree_header">
                         <div className="fixed" onClick={this._setSort('self')}>
                             {this._sortIcon('self')} Self
                         </div>
