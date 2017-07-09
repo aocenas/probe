@@ -15,7 +15,7 @@ const sortFunctions = {
 
 class Tree extends React.Component {
     static propTypes = {
-        roots: PT.arrayOf(PT.object).isRequired,
+        roots: PT.object.isRequired,
         sort: PT.string,
         desc: PT.bool,
         type: PT.oneOf(['top-down', 'bottom-up']),
@@ -53,9 +53,9 @@ class Tree extends React.Component {
             ? this.state.desc
             : this.props.desc;
 
-        let dataSorted = roots;
+        let dataSorted = Object.values(roots);
         if (sort) {
-            dataSorted = roots.sort(sortFunctions[sort](desc ? 1 : -1));
+            dataSorted = Object.values(roots).sort(sortFunctions[sort](desc ? 1 : -1));
         }
 
         return (
@@ -158,7 +158,7 @@ class TreeNode extends React.Component {
             />
         );
         let children = null;
-        if (node[edgeType] && node[edgeType].length) {
+        if (node[edgeType] && Object.keys(node[edgeType]).length) {
             if (expanded) {
                 icon = <span className="pt-icon pt-icon-caret-down" />;
                 children = (

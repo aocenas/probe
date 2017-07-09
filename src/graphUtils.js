@@ -105,7 +105,7 @@ const processEvents = (events: Event[]): ProcessingResult => {
     const stack = [];
     const statsMap = {};
     let memory = [];
-    let topDownRoots = [];
+    let topDownRoots = {};
     let root = {
         root: true,
         children: [],
@@ -135,19 +135,20 @@ const processEvents = (events: Event[]): ProcessingResult => {
             if (!statsNode) {
                 statsNode = statsMap[key] = {
                     nodes: [],
-                    parents: [],
-                    children: [],
+                    parents: {},
+                    children: {},
                     key,
                 };
             }
 
             statsNode.nodes.push(node);
             if (!parent.root) {
+                const parentKey = getNodeKey(parent);
                 const statsParent = statsMap[getNodeKey(parent)];
-                statsNode.parents.push(statsParent);
-                statsParent.children.push(statsNode);
+                statsNode.parents[parentKey] = statsParent;
+                statsParent.children[key] = statsNode;
             } else {
-                topDownRoots.push(statsNode);
+                topDownRoots[key] = statsNode;
             }
         }
 
@@ -212,7 +213,7 @@ const cleanupLooseEnds = (root, statsMap, topDownRoots) => {
             addNodeStats(root.total)(statsMap[key]);
         }
     });
-    return topDownRoots.filter(r => r.nodes.length);
+    return _.pickBy(topDownRoots, r => r.nodes.length);
 };
 
 
