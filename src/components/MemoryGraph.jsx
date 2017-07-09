@@ -51,7 +51,7 @@ class MemoryGraph extends React.Component {
         }
         return (
             <svg
-                ref={el => this._el = el}
+                ref={el => (this._el = el)}
                 className="memory-graph"
                 width={width}
                 height={50}
@@ -62,20 +62,12 @@ class MemoryGraph extends React.Component {
                 onMouseMove={e => {
                     if (showMarker) {
                         const pos =
-                            e.clientX -
-                            this._el.getBoundingClientRect().left;
+                            e.clientX - this._el.getBoundingClientRect().left;
                         this.setState({ markerX: pos });
                     }
                 }}
                 onMouseOut={e => {
-                    if (!(
-                        e.relatedTarget && (
-                            e.relatedTarget.classList.contains('vx-line') ||
-                            e.relatedTarget.classList.contains('memory-graph')
-                        )
-                    )) {
-                        console.log('out');
-                        console.log(e.relatedTarget);
+                    if (!(e.relatedTarget && isPartOfGraph(e.relatedTarget))) {
                         this.setState({
                             showMarker: false,
                             markerX: null,
@@ -111,5 +103,9 @@ class MemoryGraph extends React.Component {
         );
     }
 }
+
+const isPartOfGraph = element =>
+    element.classList.contains('vx-line') ||
+    element.classList.contains('memory-graph');
 
 module.exports = MemoryGraph;
