@@ -6,6 +6,7 @@
   "scripts": {
     "test": "jest --testPathPattern=\"build/.*\"",
     "watch": "babel src -d build -w --source-maps",
+    "watch-scss": "node-sass -w src/components/index.scss css/index.css",
     "build": "babel src -d build",
     "release": "electron-packager . --out=./release --package-manager=yarn",
     "electron": "electron ."
@@ -32,6 +33,7 @@
     "electron-devtools-installer": "^2.2.0",
     "lodash": "^4.17.4",
     "moment": "^2.18.1",
+    "node-sass": "^4.5.3",
     "prop-types": "^15.5.8",
     "react": "^15.5.4",
     "react-addons-css-transition-group": "^15.5.2",

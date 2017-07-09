@@ -2,7 +2,7 @@
 const React = require('react');
 const PT = require('prop-types');
 
-const Flame = require('./Flame');
+const Flame = require('./flame/Flame');
 const MemoryGraph = require('./MemoryGraph');
 
 class FlamePage extends React.PureComponent {
@@ -37,7 +37,7 @@ class FlamePage extends React.PureComponent {
 
     render() {
         return (
-            <div className="flame-wrapper" ref={el => (this._el = el)}>
+            <div className="flame-page" ref={el => (this._el = el)}>
                 <MemoryGraph
                     memoryData={this.props.memoryData}
                     width={this.state.width}

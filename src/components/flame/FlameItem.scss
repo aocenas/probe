@@ -1,0 +1,37 @@
+.flame-item {
+    cursor: pointer;
+
+    & > rect {
+        fill: rgba(16, 22, 26, 0.2);
+    }
+
+    &:hover > rect {
+        fill: rgba(16, 22, 26, 0.3);
+    }
+}
+
+
+.flame-item.selected {
+    & > rect {
+        fill: #5c7080;
+    }
+
+    &:hover > rect {
+        fill: #4c5c69;
+    }
+
+    .flame-item_flame-label {
+        color: white;
+    }
+}
+
+.flame-item_flame-label {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding: 5px;
+}
+
+
+
+
+

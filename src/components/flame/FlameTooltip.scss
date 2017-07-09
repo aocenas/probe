@@ -1,0 +1,30 @@
+.flame-tooltip {
+    position: absolute;
+    padding: 5px;
+    background-color: #394b59;
+    color: white;
+    border-radius: 4px;
+    box-shadow: 0 0 9px 3px rgba(0, 0, 0, 0.2);
+}
+
+.flame-tooltip_main {
+    font-weight: bold;
+}
+
+.flame-tooltip_secondary {
+    font-size: 11px;
+}
+
+.flame-tooltip_label-wrapper {
+    display: flex;
+}
+
+.flame-tooltip_label {
+    width: 50px;
+}
+
+.flame-tooltip_value {
+    width: 100px;
+    text-align: right;
+}
+

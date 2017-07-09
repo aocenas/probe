@@ -1,0 +1,177 @@
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100%; }
+
+.app_content-wrapper {
+  font-size: 12px;
+  width: 100%;
+  overflow: auto;
+  padding: 20px 10px 10px 10px;
+  display: flex;
+  flex-direction: column;
+  flex: 1; }
+
+.app_tree-wrapper {
+  padding-bottom: 20px;
+  flex: 1; }
+
+.header {
+  padding: 10px;
+  border-bottom: 1px solid lightgray;
+  display: flex;
+  justify-content: space-between; }
+
+.flame .level {
+  width: 100%;
+  position: relative;
+  height: 27px; }
+
+.flame .item {
+  position: absolute;
+  background-color: #39CCCC;
+  border-radius: 4px;
+  height: 25px;
+  overflow: hidden;
+  border: 1px solid white; }
+
+.flame .item .pt-popover-target {
+  width: 100%; }
+
+.flame .item .item-content {
+  white-space: nowrap;
+  font-size: 12px;
+  padding: 5px;
+  width: 100%;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  cursor: pointer; }
+
+.flame-tooltip {
+  position: absolute;
+  padding: 5px;
+  background-color: #394b59;
+  color: white;
+  border-radius: 4px;
+  box-shadow: 0 0 9px 3px rgba(0, 0, 0, 0.2); }
+
+.flame-tooltip_main {
+  font-weight: bold; }
+
+.flame-tooltip_secondary {
+  font-size: 11px; }
+
+.flame-tooltip_label-wrapper {
+  display: flex; }
+
+.flame-tooltip_label {
+  width: 50px; }
+
+.flame-tooltip_value {
+  width: 100px;
+  text-align: right; }
+
+.flame-item {
+  cursor: pointer; }
+  .flame-item > rect {
+    fill: rgba(16, 22, 26, 0.2); }
+  .flame-item:hover > rect {
+    fill: rgba(16, 22, 26, 0.3); }
+
+.flame-item.selected > rect {
+  fill: #5c7080; }
+
+.flame-item.selected:hover > rect {
+  fill: #4c5c69; }
+
+.flame-item.selected .flame-item_flame-label {
+  color: white; }
+
+.flame-item_flame-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 5px; }
+
+html {
+  height: 100vh; }
+
+body {
+  overflow: hidden;
+  height: 100%;
+  margin: 0; }
+
+#app-root {
+  height: 100%; }
+
+.tree {
+  padding: 0;
+  margin: 0;
+  list-style: none;
+  min-width: -webkit-min-content; }
+
+.tree > .header {
+  display: flex;
+  margin-bottom: 10px;
+  font-size: 11px;
+  font-weight: bold;
+  color: rgba(0, 0, 0, 0.6); }
+
+.tree > .header > .fixed {
+  width: 90px;
+  margin-right: 15px;
+  text-align: right;
+  cursor: pointer; }
+
+.tree > .header > .fixed.small {
+  width: 50px; }
+
+.tree-node > div {
+  padding-top: 3px;
+  padding-bottom: 3px;
+  cursor: pointer;
+  display: flex;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  min-width: -webkit-min-content;
+  align-items: baseline; }
+
+.tree-node > div:hover {
+  background-color: rgba(0, 0, 0, 0.05); }
+
+.tree-node > div > div.no-icon {
+  padding-left: 18px; }
+
+.tree-node > div > .column-fixed {
+  width: 90px;
+  margin-right: 15px;
+  flex-shrink: 0;
+  text-align: right;
+  display: flex;
+  align-items: baseline; }
+
+.tree-node > div > .column-fixed.small {
+  width: 50px; }
+
+.tree-node > div > .column-fixed > .value {
+  flex: 1; }
+
+.tree-node > div > .column-fixed > .percentage {
+  font-size: 11px;
+  color: rgba(0, 0, 0, 0.5);
+  width: 30px;
+  margin-left: 5px; }
+
+.tree-node > div > .func {
+  flex-shrink: 0; }
+
+.tree-node > div > .path {
+  white-space: nowrap;
+  flex-shrink: 1;
+  margin-left: 15px;
+  color: rgba(0, 0, 0, 0.5);
+  font-size: 11px; }
+
+.pt-dialog-footer {
+  display: flex; }
+
+.pt-dialog-footer-actions {
+  flex: 1; }

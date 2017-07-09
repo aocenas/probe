@@ -1,0 +1,21 @@
+.app {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.app_content-wrapper {
+    font-size: 12px;
+    width: 100%;
+    overflow: auto;
+    padding: 20px 10px 10px 10px;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.app_tree-wrapper {
+    padding-bottom: 20px;
+    flex: 1;
+}
+

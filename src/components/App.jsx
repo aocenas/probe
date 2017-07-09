@@ -105,7 +105,7 @@ class App extends React.Component {
                     disabled={!files.length}
                 />
 
-                <div className="content-wrapper">
+                <div className="app_content-wrapper">
                     {this.showContent()}
                 </div>
 
@@ -138,7 +138,7 @@ class App extends React.Component {
                     ? topDownRoots
                     : bottomUpRoots;
                 return (
-                    <div className="tree-wrapper">
+                    <div className="app_tree-wrapper">
                         <Tree roots={roots} type={type} dataId={currentFile} />
                     </div>
                 );

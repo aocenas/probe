@@ -1,0 +1,29 @@
+.flame .level {
+    width: 100%;
+    position: relative;
+    height: 27px;
+}
+
+.flame .item {
+    position: absolute;
+    background-color: #39CCCC;
+    border-radius: 4px;
+    height: 25px;
+    overflow: hidden;
+    border: 1px solid white;
+}
+
+.flame .item .pt-popover-target {
+    width: 100%;
+}
+
+.flame .item .item-content {
+    white-space: nowrap;
+    font-size: 12px;
+    padding: 5px;
+    width: 100%;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    cursor: pointer;
+}
+

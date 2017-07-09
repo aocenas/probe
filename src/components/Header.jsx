@@ -27,7 +27,7 @@ class Header extends React.Component {
         } = this.props;
         return (
             <div className="header">
-                <div className="left-group">
+                <div className="header_left-group">
                     <TypeSelect
                         type={type}
                         disabled={disabled}
