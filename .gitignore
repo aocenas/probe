@@ -1,4 +1,5 @@
 .idea
+css/index.css
 node_modules
 dump.json
 build
