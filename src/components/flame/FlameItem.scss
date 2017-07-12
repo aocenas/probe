@@ -8,8 +8,13 @@
         stroke-width: 3;
     }
 
-    &:hover > rect {
-        //fill: rgba(16, 22, 26, 0.3);
+    &:hover {
+        & > rect {
+            stroke-width: 1;
+        }
+        .flame-item_flame-label {
+            font-size: 12px;
+        }
     }
 }
 
@@ -29,9 +34,11 @@
 }
 
 .flame-item_flame-label {
+    font-size: 11px;
     overflow: hidden;
     text-overflow: ellipsis;
     padding: 5px;
+    font-weight: bold;
 }
 
 

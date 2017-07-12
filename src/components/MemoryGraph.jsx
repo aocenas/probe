@@ -86,21 +86,23 @@ class MemoryGraph extends React.Component {
                     x={x}
                     y={y}
                     curve={d3.curveStep}
-                    strokeWidth="2"
-                    stroke={Colors.BLUE4}
+                    strokeWidth="1"
+                    stroke={Colors.DARK_GRAY5}
                 />
                 {showMarker &&
                     markerLabel &&
                     <Marker
                         from={{ x: markerX, y: 50 }}
                         to={{ x: markerX, y: 0 }}
-                        stroke={'black'}
+                        stroke={Colors.DARK_GRAY5}
+                        strokeWidth={1}
                         label={markerLabel.toLocaleString(undefined, {
                             maximumFractionDigits: 2,
                             minimumFractionDigits: 2,
                         })}
                         labelStroke={'none'}
-                        labelFill="black"
+                        labelStrokeWidth={5}
+                        labelFill={Colors.DARK_GRAY5}
                         labelDx={width - markerX < 50 ? -40 : 10}
                         labelDy={-25}
                     />}

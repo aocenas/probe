@@ -21,7 +21,7 @@ const colors = [
     '#D47F28',
     '#CF7725',
     '#CA6E23',
-    // '#C56620',
+    '#C56620',
     // '#BF5E1D',
     // '#BA571B',
     // '#B54E18',
@@ -107,13 +107,16 @@ class FlameGraph extends React.PureComponent {
                 scaleX(d.x1) > 0
             );
         });
+
+        const isZooming = scaleWidth(scaleX) < scaleWidth(scaleXPrev);
+
         return (
             <TransitionMotion
                 styles={allItems.map(item => {
                     let style = this.getItemStyle(scaleX)(item);
                     if (animate) {
                         style = _.mapValues(style, val =>
-                            spring(val, { stiffness: 300, damping: 30 })
+                            spring(val, { stiffness: isZooming ? 300 : 600, damping: 30 })
                         );
                     }
                     return {
@@ -186,7 +189,7 @@ class FlameGraph extends React.PureComponent {
                                         onMouseOver={() =>
                                             onMouseOver(key, item.data)}
                                         height={itemHeight}
-                                        width={style.width}
+                                        width={Math.max(style.width, 0)}
                                         showLabel={this.bigEnoughForLabel(item)}
                                         label={itemLabel(item.data)}
                                         fill={colorScale(item.depth)}
@@ -239,5 +242,7 @@ const itemKey = item =>
         .join('')
         .split(':')
         .join('');
+
+const scaleWidth = (scale) => scale.domain()[1] - scale.domain()[0];
 
 module.exports = FlameGraph;
