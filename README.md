@@ -12,7 +12,7 @@ instructions for how to install and use.
 
 ### Build
 ```bash
-yarn build
+yarn build-all
 ```
 
 ### Run

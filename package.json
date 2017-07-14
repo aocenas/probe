@@ -5,10 +5,12 @@
   "main": "index.js",
   "scripts": {
     "test": "jest --testPathPattern=\"build/.*\"",
-    "watch": "babel src -d build -w --source-maps",
     "watch-scss": "node-sass -w src/components/index.scss css/index.css",
-    "build": "babel src -d build",
-    "release": "electron-packager . --out=./release --package-manager=yarn",
+    "build-scss": "node-sass src/components/index.scss css/index.css",
+    "watch-js": "babel src -d build -w --source-maps",
+    "build-js": "babel src -d build",
+    "build-all": "yarn build-js && yarn build-scss",
+    "release": "electron-packager . --out=./release --package-manager=yarn --overwrite",
     "electron": "electron ."
   },
   "author": "",
